@@ -5,7 +5,7 @@ from loot_bag import LootBag
 import os
 from items import Weapon
 from shop import Shop
-
+from saveload import *
 
 
 #Startup, player input
@@ -27,6 +27,8 @@ Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
 #hero.loot_bag.add_item(iron_dagger)
 #print(hero.loot_bag.get_items())
 #hero.loot_bag.draw_bag()
+
+game_state = ""
 
 
 #Game loop
