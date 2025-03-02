@@ -2,6 +2,7 @@
 #Text-Based MVP
 from character import Hero, Enemy
 from loot_bag import LootBag
+from inventory import Inventory
 import os
 from items import Weapon
 from shop import Shop
@@ -21,7 +22,13 @@ if settings_flag != "":
 #define player and enemy objects
 loot_bag = LootBag()
 shop = Shop()
-hero = Hero(name=username, level=1, xp=0, health=100, mana=10, attack_rating=50, defense=10, loot_bag=loot_bag)
+hero = Hero(name=username, level=1, xp=0, health=100, mana=10, attack_rating=50, defense=10, loot_bag=loot_bag, inventory=Inventory())
+hero.inventory.add_item("Mana Potion")
+hero.inventory.add_item(Weapon.generate_weapon("Wooden Stick").name)
+hero.loot_bag.add_item(Weapon.generate_weapon("Iron Dagger").name)
+herodictbefore = hero.to_dict()
+hero = None
+hero = Hero.from_dict(herodictbefore)
 Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
 #hero.loot_bag.add_item(wooden_stick)
 #hero.loot_bag.add_item(iron_dagger)
@@ -45,7 +52,25 @@ while True:
         action = action_parts[0]
         argument = action_parts[1] if len(action_parts) > 1 else None
 
-    if action in ["help", "tutorial", "action", "?"]:
+    if action in ["debug"]:
+        herodictafter = hero.to_dict()
+        print("BEFORE")
+        for item in herodictbefore:
+            print(f"{item}: {herodictbefore.get(item)}")
+        print("----------------")
+        print("AFTER")
+        for item in herodictafter:
+            print(f"{item}: {herodictafter.get(item)}")
+        print("----------------")
+        print("Inventory")
+        print(hero.inventory.get_items())
+        print("----------------")
+        print("lootbag")
+        print(hero.loot_bag.get_items())
+        if herodictbefore == herodictafter:
+            print("YES")
+
+    elif action in ["help", "tutorial", "action", "?"]:
         print("Welcome to LootbagRPG!")
         print("Press Enter to Autoattack")
         print("Type 'e' or 'i' to open inventory")

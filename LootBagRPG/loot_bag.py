@@ -17,8 +17,10 @@ class LootBag:
         self.hit_rating = hit_rating
         self.name = "Loot Bag"
 
-        default_weapon = Weapon.generate_weapon("Wooden Stick")
-        self.add_item(default_weapon.name)
+        if items is None:
+            default_weapon = Weapon.generate_weapon("Wooden Stick")
+            self.add_item(default_weapon.name)
+        self.update_bag()
 
     def update_weight(self) -> None:
         self.weight = 0

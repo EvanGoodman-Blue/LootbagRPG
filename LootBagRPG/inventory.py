@@ -9,6 +9,7 @@ class Inventory:
         self.items = items if items is not None else []
         self.weight = weight
         self.weight_max = weight_max
+        self.update_inventory()
 
     def update_weight(self) -> None:
         self.weight = 0

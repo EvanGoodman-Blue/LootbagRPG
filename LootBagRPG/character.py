@@ -86,8 +86,9 @@ class Hero(Character):
                  mana: int,
                  attack_rating: int,
                  defense: int,
-                 loot_bag,
-                 gold: int=0,
+                 loot_bag: object,
+                 inventory: object,
+                 gold: int=0
                  ) -> None:
         super().__init__(name=name, health=health, mana=mana, attack_rating=attack_rating, defense=defense)
 
@@ -95,7 +96,7 @@ class Hero(Character):
         self.xp = xp
         self.gold = gold
         self.loot_bag = loot_bag
-        self.inventory = Inventory()
+        self.inventory = inventory
         self.weapon = self.loot_bag
         self.health_bar = HealthBar(self, color= "red")
         self.mana_bar = ManaBar(self, color= "blue")
@@ -197,6 +198,47 @@ class Hero(Character):
     #def drop(self) -> None:
         #self.weapon = self.default_weapon
         #print(f"{self.name} dropped their {self.weapon.name}.")
+
+    def to_dict(self) -> dict:
+        #Convert object to dict for saving
+        return {
+            "name": self.name,
+            "level": self.level,
+            "xp": self.xp,
+            "health": self.health,
+            "health_max": self.health_max,
+            "mana": self.mana,
+            "mana_max": self.mana_max,
+            "attack_rating": self.attack_rating,
+            "defense": self.defense,
+            "gold": self.gold,
+            "loot_bag": [item for item in self.loot_bag.items],
+            "inventory": [item for item in self.inventory.items]
+        }
+    @classmethod
+    def from_dict(cls, data):
+
+        #add weapons to weapons list so they can be accessed later
+        for item in data["loot_bag"] + data["inventory"]:
+            Item.all_items_list.append(item) #possibly remove, unsure if needed
+            if item.item_type == "Weapon":
+                Weapon.all_weapons_list.append(item)
+            elif item.item_type == "Potion":
+                Potion.all_potions_list.append(item)
+
+        hero = cls(
+            name=data["name"],
+            level=data["level"],
+            xp=data["xp"],
+            health=data["health"],
+            mana=data["mana"],
+            attack_rating=data["attack_rating"],
+            defense=data["defense"],
+            loot_bag=LootBag(items=data["loot_bag"]),
+            inventory=Inventory(items=data["inventory"]),
+            gold=data["gold"]
+        )
+        return hero
 
 class Enemy(Character):
     active_enemy = None
