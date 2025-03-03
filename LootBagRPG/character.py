@@ -266,8 +266,12 @@ class Enemy(Character):
                  mana: int,
                  attack_rating: int,
                  defense: int,
-                 weapon, 
+                 weapon: Weapon, 
+                 health_max: int=13,
+                 mana_max: int=15
                  ) -> None:
+        #Possibly need to optionally declare health and mana max here 
+        #to allow for loading enemies with less than max health.
         super().__init__(name=name, health=health, mana=mana, attack_rating=attack_rating, defense=defense)
         self.weapon = weapon
         self.health_bar = HealthBar(self, color= "grey")
@@ -330,4 +334,31 @@ class Enemy(Character):
     def death_cleanup(self) -> None:
         #garbage collection
         Enemy.active_enemy = None
+
+    def to_dict(self) -> dict:
+        #Convert object to dict for saving
+        return {
+            "name": self.name,
+            "health": self.health,
+            "health_max": self.health_max,
+            "mana": self.mana,
+            "mana_max": self.mana_max,
+            "attack_rating": self.attack_rating,
+            "defense": self.defense,
+            "weapon": self.weapon
+        }
+    @classmethod
+    def from_dict(cls, data):
+
+        #Possibly need to configure weapon object, maybe not. Test.
+
+        enemy = cls(
+            name=data["name"],
+            health=data["health"],
+            mana=data["mana"],
+            attack_rating=data["attack_rating"],
+            defense=data["defense"],
+            weapon=data["weapon"]
+        )
+        return enemy
 
