@@ -12,30 +12,31 @@ from saveload import *
 #Startup, player input
 username = input("Please enter your username: ")
 #Settings
-settings_flag = input("Settings?")
+settings_flag = input("Settings? (y/n)")
 auto_pickup = False
-if settings_flag != "":
+if settings_flag in ["y", "yes"]:
     print("Settings:")
-    auto_pickup = True if input("Auto Pickup?") != "" else False
+    auto_pickup = True if input("Auto Pickup? (y/n)") in ["y", "yes"] else False
     print(f"AutoPickup: {auto_pickup}")
 
 #define player and enemy objects
 loot_bag = LootBag()
 shop = Shop()
 hero = Hero(name=username, level=1, xp=0, health=100, mana=10, attack_rating=50, defense=10, loot_bag=loot_bag, inventory=Inventory())
-hero.inventory.add_item("Mana Potion")
-hero.inventory.add_item(Weapon.generate_weapon("Wooden Stick").name)
-hero.loot_bag.add_item(Weapon.generate_weapon("Iron Dagger").name)
-herodictbefore = hero.to_dict()
-hero = None
-hero = Hero.from_dict(herodictbefore)
+#hero.inventory.add_item("Mana Potion")
+#hero.inventory.add_item(Weapon.generate_weapon("Wooden Stick").name)
+#hero.loot_bag.add_item(Weapon.generate_weapon("Iron Dagger").name)
+#herodictbefore = hero.to_dict()
+#hero = None
+#hero = Hero.from_dict(herodictbefore)
 Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
-#hero.loot_bag.add_item(wooden_stick)
-#hero.loot_bag.add_item(iron_dagger)
-#print(hero.loot_bag.get_items())
-#hero.loot_bag.draw_bag()
 
-game_state = ""
+
+
+game_state = {
+    "Autopickup": auto_pickup,
+    "menu": "enemy"
+}
 
 
 #Game loop
@@ -53,21 +54,18 @@ while True:
         argument = action_parts[1] if len(action_parts) > 1 else None
 
     if action in ["debug"]:
-        herodictafter = hero.to_dict()
+        enemydictbefore = Enemy.active_enemy.to_dict()
+        Enemy.active_enemy = None
+        Enemy.active_enemy = Enemy.from_dict(enemydictbefore)
+        enemydictafter = Enemy.active_enemy.to_dict()
         print("BEFORE")
-        for item in herodictbefore:
-            print(f"{item}: {herodictbefore.get(item)}")
+        for item in enemydictbefore:
+            print(f"{item}: {enemydictbefore.get(item)}")
         print("----------------")
         print("AFTER")
-        for item in herodictafter:
-            print(f"{item}: {herodictafter.get(item)}")
-        print("----------------")
-        print("Inventory")
-        print(hero.inventory.get_items())
-        print("----------------")
-        print("lootbag")
-        print(hero.loot_bag.get_items())
-        if herodictbefore == herodictafter:
+        for item in enemydictafter:
+            print(f"{item}: {enemydictafter.get(item)}")
+        if enemydictbefore == enemydictafter:
             print("YES")
 
     elif action in ["help", "tutorial", "action", "?"]:
@@ -173,6 +171,8 @@ while True:
         if argument in ["g", "gold"]:
             hero.gold += 10
             print("Added 10 gold.")
+        elif argument in ["xp"]:
+            hero.gain_xp(drops=None,xp=50)
         elif argument is None:
             weapon_name = input("Which Weapon? ").strip().lower()
         else:

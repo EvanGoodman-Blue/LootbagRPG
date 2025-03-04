@@ -106,9 +106,14 @@ class Hero(Character):
         #implement level bonuses (max health, defense, attack rating, lootbag weight)
         print(f"{self.name} Advanced to Level {self.level}!")
 
-    def gain_xp(self, drops) -> None:
-        self.xp += drops[0]
-        print(f"{self.name} Gained {drops[0]} XP! Current XP: {self.xp}/{self.level * 100}")
+    def gain_xp(self, drops:list=None, xp:int=None) -> None:
+        if drops is None and xp is not None:
+            xp_gained = xp
+            self.xp += xp
+        else:
+            xp_gained = drops[0]
+            self.xp += drops[0]
+        print(f"{self.name} Gained {xp_gained} XP! Current XP: {self.xp}/{self.level * 100}")
         if self.xp >= self.level*100:
             self.xp -= self.level * 100
             self.level_up()
@@ -266,14 +271,18 @@ class Enemy(Character):
                  mana: int,
                  attack_rating: int,
                  defense: int,
-                 weapon: Weapon, 
-                 health_max: int=13,
-                 mana_max: int=15
+                 weapon: Weapon,
+                 health_max: int=None,
+                 mana_max: int=None
                  ) -> None:
         #Possibly need to optionally declare health and mana max here 
         #to allow for loading enemies with less than max health.
         super().__init__(name=name, health=health, mana=mana, attack_rating=attack_rating, defense=defense)
         self.weapon = weapon
+        if health_max:
+            self.health_max = health_max
+        if mana_max:
+            self.mana_max = mana_max
         self.health_bar = HealthBar(self, color= "grey")
         self.mana_bar = ManaBar(self, color= "blue")
 
@@ -358,7 +367,12 @@ class Enemy(Character):
             mana=data["mana"],
             attack_rating=data["attack_rating"],
             defense=data["defense"],
-            weapon=data["weapon"]
+            weapon=data["weapon"],
+            health_max=data["health_max"],
+            mana_max=data["mana_max"]
         )
+
+        #enemy.health_max = data["health_max"]
+        #enemy.mana_max = data["mana_max"]
         return enemy
 
