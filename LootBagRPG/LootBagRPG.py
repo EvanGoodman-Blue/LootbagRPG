@@ -38,6 +38,13 @@ game_state = {
     "menu": "enemy"
 }
 
+#Possible menu states:
+#game_state["menu"] = "enemy"
+#game_state["menu"] = "inspect_enemy"
+#game_state["menu"] = "character"
+#game_state["menu"] = "inventory"
+#game_state["menu"] = "lootbag"
+#game_state["menu"] = "shop"
 
 #Game loop
 while True:
@@ -103,9 +110,11 @@ while True:
         drops = None
 
     elif action in ["inspect", "ins", "enemy"]:
+        game_state["menu"] = "inspect_enemy"
         hero.inspect(Enemy.active_enemy)
 
     elif action in ["c", "stats", "char", "character"]:
+        game_state["menu"] = "character"
         hero.health_bar.draw()
         hero.mana_bar.draw()
         hero.draw_stats()
@@ -119,9 +128,11 @@ while True:
         print("Already fighting an enemy!")
 
     elif action in ["b", "bag"]:
+        game_state["menu"] = "lootbag"
         hero.loot_bag.draw_bag()
 
     elif action in ["e", "i", "inventory", "inv"]:
+        game_state["menu"] = "inventory"
         hero.inventory.draw(hero)
 
     elif action in ["m", "move"]:
@@ -147,6 +158,7 @@ while True:
                 print("Invalid Destination")
 
     elif action in ["shop", "s"]:
+        game_state["menu"] = "shop"
         shop.generate_shop()
         shop.draw()
         if argument is None:

@@ -131,7 +131,7 @@ class Weapon(Item):
         self.name = new_name
 
     @classmethod
-    def generate_weapon(cls, weapon_base: str = None) -> object:
+    def generate_weapon(cls, weapon_base: str = None, prefix: str = None, suffix: str = None) -> object:
         
         #If no weapon base provided, choose randomly
         if weapon_base is None:
@@ -142,16 +142,17 @@ class Weapon(Item):
                 (base for base in cls.WEAPON_BASES if base["name"].lower() == weapon_base.lower()),
                 None
             )
+        if prefix is not None:
+            if random.random() < 0.5: # Change to "enchantability" later
+                prefix = random.choices(cls.WEAPON_PREFIX_NAMES, weights=cls.WEAPON_PREFIX_RARITY, k=1)[0]
+            else:
+                prefix = None
 
-        if random.random() < 0.5: # Change to "enchantability" later
-            prefix = random.choices(cls.WEAPON_PREFIX_NAMES, weights=cls.WEAPON_PREFIX_RARITY, k=1)[0]
-        else:
-            prefix = None
-
-        if random.random() < 0.25: # Change to "enchantability / 2" later
-            suffix = random.choices(cls.WEAPON_SUFFIX_NAMES, weights=cls.WEAPON_SUFFIX_RARITY, k=1)[0]
-        else:
-            suffix = None
+        if suffix is not None:
+            if random.random() < 0.25: # Change to "enchantability / 2" later
+                suffix = random.choices(cls.WEAPON_SUFFIX_NAMES, weights=cls.WEAPON_SUFFIX_RARITY, k=1)[0]
+            else:
+                suffix = None
 
         return cls(
             name=weapon_base["name"],

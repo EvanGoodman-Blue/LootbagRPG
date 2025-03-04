@@ -11,10 +11,10 @@ class Shop:
         #fill in with default items (mana potion, 10g)
         self.stock = {}
         mana_potion = Potion.get_potion_by_name("mana potion")
-        self.stock[mana_potion.name] = mana_potion.value
+        self.stock[mana_potion.name] = mana_potion
 
         stocked_weapon = Weapon.generate_weapon()
-        self.stock[stocked_weapon.name] = stocked_weapon.value
+        self.stock[stocked_weapon.name] = stocked_weapon
 
 
     def buy(self, hero, item_name: str) -> None:
@@ -49,3 +49,16 @@ class Shop:
         print("Welcome to my Shop!")
         for item, price in self.stock.items():
             print(f"{item}: {price} gold")
+
+    def to_dict(self):
+        return self.stock
+
+    @classmethod
+    def from_dict(cls, data):
+
+        shop = Shop(data)
+        stocked_weapon_name = list(data.keys())[1]
+        stocked_weapon = Weapon.generate_weapon()
+        shop.stock[stocked_weapon.name] = stocked_weapon.value 
+        
+        return shop
