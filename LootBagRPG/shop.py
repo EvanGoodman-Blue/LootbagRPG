@@ -20,7 +20,7 @@ class Shop:
     def buy(self, hero, item_name: str) -> None:
         matching_item = next((item for item in self.stock if item.lower() == item_name.lower()), None)
         if matching_item:
-            price = self.stock[matching_item]
+            price = self.stock[matching_item].value
             if hero.gold >= price:
                 hero.gold -= price
                 print(f"{matching_item} Purchased for {price} Gold.")
@@ -47,8 +47,8 @@ class Shop:
 
     def draw(self) -> None:
         print("Welcome to my Shop!")
-        for item, price in self.stock.items():
-            print(f"{item}: {price} gold")
+        for item_name, item_obj in self.stock.items():
+            print(f"{item_name}: {item_obj.value} gold")
 
     def to_dict(self):
         return self.stock
@@ -57,8 +57,8 @@ class Shop:
     def from_dict(cls, data):
 
         shop = Shop(data)
-        stocked_weapon_name = list(data.keys())[1]
-        stocked_weapon = Weapon.generate_weapon()
-        shop.stock[stocked_weapon.name] = stocked_weapon.value 
+        stocked_weapon_dict = list(data.values())[1]
+        stocked_weapon = Weapon.get_weapon_by_name(stocked_weapon_dict.name)
+        shop.stock[stocked_weapon.name] = stocked_weapon
         
         return shop

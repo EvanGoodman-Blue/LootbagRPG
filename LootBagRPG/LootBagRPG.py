@@ -140,29 +140,44 @@ while True:
             item_to_move = input("Which Item? ").strip().lower()
         else:
             item_to_move = argument
-            destination = input("To Where? ").strip().lower()
-            if destination in ["bag", "b", "lootbag"]:
-                #move from inventory to lootbag
-                if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
-                    hero.loot_bag.add_item(item_to_move)
-                elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
-                    print(f"{item_to_move} won't fit in your lootbag.")
+        destination = input("To Where? ").strip().lower()
+        if destination in ["bag", "b", "lootbag"]:
+            #move from inventory to lootbag
+            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
+                hero.loot_bag.add_item(item_to_move)
+            elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
+                print(f"{item_to_move} won't fit in your lootbag.")
 
-            elif destination in ["e", "i", "inventory", "inv"]:
-                #move from lootbag to inventory
-                if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
-                    hero.inventory.add_item(item_to_move)
-                elif hero.inventory.weight >= hero.inventory.weight_max:
-                    print(f"{item_to_move} won't fit in your inventory.")
-            else:
-                print("Invalid Destination")
+        elif destination in ["e", "i", "inventory", "inv"]:
+            #move from lootbag to inventory
+            if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
+                hero.inventory.add_item(item_to_move)
+            elif hero.inventory.weight >= hero.inventory.weight_max:
+                print(f"{item_to_move} won't fit in your inventory.")
+        else:
+            print("Invalid Destination")
 
     elif action in ["shop", "s"]:
         game_state["menu"] = "shop"
         shop.generate_shop()
         shop.draw()
-        if argument is None:
+        if argument is None or argument in ["debug"]:
             buy_sell = input(f"Buying or Selling, {hero.name}? ").strip().lower()
+            if argument in ["debug"]:
+                shop_dict_before = shop.to_dict()
+                shop = None
+                shop = Shop.from_dict(shop_dict_before)
+                shop_dict_after = shop.to_dict()
+                print("BEFORE")
+                for item in shop_dict_before:
+                    print(f"{item}: {shop_dict_before.get(item)}")
+                print("----------------")
+                print("AFTER")
+                for item in shop_dict_after:
+                    print(f"{item}: {shop_dict_after.get(item)}")
+                if shop_dict_before == shop_dict_after:
+                        print("YES")
+                print(shop_dict_after)
         else:
             buy_sell = argument
         if buy_sell in ["b", "buy", "buying", "purchase"]:

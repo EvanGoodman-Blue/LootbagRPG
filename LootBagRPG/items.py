@@ -35,6 +35,12 @@ class Item:
 class Weapon(Item):   
     all_weapons_list = []
     WEAPON_PREFIXES = {
+        "test": {
+            "damage": 0,
+            "hit_rating": 0,
+            "affix_rarity": 0,
+            "value": 0
+        },
         "Cracked": {
             "damage": -1,
             "hit_rating": -10,
@@ -50,6 +56,12 @@ class Weapon(Item):
 
     }
     WEAPON_SUFFIXES = {
+        "test": {
+            "damage": 0,
+            "hit_rating": 0,
+            "affix_rarity": 0,
+            "value": 0
+        },
         "of Imbalance": {
             "hit_rating": -10,
             "affix_rarity": 5,
@@ -142,13 +154,13 @@ class Weapon(Item):
                 (base for base in cls.WEAPON_BASES if base["name"].lower() == weapon_base.lower()),
                 None
             )
-        if prefix is not None:
+        if prefix is None:
             if random.random() < 0.5: # Change to "enchantability" later
                 prefix = random.choices(cls.WEAPON_PREFIX_NAMES, weights=cls.WEAPON_PREFIX_RARITY, k=1)[0]
             else:
                 prefix = None
 
-        if suffix is not None:
+        if suffix is None:
             if random.random() < 0.25: # Change to "enchantability / 2" later
                 suffix = random.choices(cls.WEAPON_SUFFIX_NAMES, weights=cls.WEAPON_SUFFIX_RARITY, k=1)[0]
             else:
@@ -167,13 +179,30 @@ class Weapon(Item):
         )
 
     @classmethod
-    def get_weapon_by_name(cls, name: str) -> object:
+    def get_weapon_by_name(cls, weapon_name: str, prefix: str = None, suffix: str = None) -> object:
         #Finds and returns weapon object by name (case insensitive)
-        return next(
+        #If no weapon found in current weapon list, generate weapon according to specs
+        #If generating weapon, weapon_name becomes base name, then optional affixes added
+        found_weapon = next(
             (weapon for weapon in cls.all_weapons_list 
-             if weapon.name.lower() == name.lower()),
+             if weapon.name.lower() == weapon_name.lower()),
             None
         )
+        if found_weapon == None:
+            weapon_base = next(
+                (base for base in cls.WEAPON_BASES if base["name"].lower() == weapon_name.lower()),
+                None
+            )
+            if weapon_base == None:
+                #invalid weapon base found, return error
+                print(f"Invalid Weapon")
+                return None
+            else:
+                generated_weapon = Weapon.generate_weapon(weapon_base=weapon_base, prefix=prefix, suffix=suffix)
+                return generated_weapon
+        else:
+            return found_weapon
+
     
     def __repr__(self) -> str:
         return (f"Weapon({self.name}, Type: {self.weapon_type}, Rarity: {self.rarity}, Damage: {self.damage}, Hit Rating: {self.hit_rating}, Value: {self.value}, Weight: {self.weight})")
