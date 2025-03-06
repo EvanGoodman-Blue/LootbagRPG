@@ -7,6 +7,7 @@ import os
 from items import Weapon
 from shop import Shop
 from saveload import *
+from help_messages import *
 
 
 #Startup, player input
@@ -63,7 +64,6 @@ while True:
         enemy_save = Enemy.active_enemy.to_dict()
         save_game(hero=hero_save, enemy=enemy_save, game_state=game_state)
         
-
     elif action in ["load"]:
         if argument:
             filename = argument
@@ -105,7 +105,9 @@ while True:
         print("Type 'move' to move an item between your inventory and lootbag")
         print("Type 'pickup' when an enemy is killed to pick up dropped items, or let autopickup handle it automatically")
         print("Type 'drop' to drop an item from your inventory or lootbag")
-        print("Type 'help' to open this menu again")
+        print("Type 'save' to save the game")
+        print("Type 'load [filename]' to load a saved game")
+        print("Type 'help' at any time to show commands")
     
     elif action in ["attack", "atk", "a", ""] and Enemy.active_enemy is not None:
         game_state["menu"] = "enemy"
@@ -155,9 +157,16 @@ while True:
     elif action in ["m", "move"]:
         if argument is None:
             item_to_move = input("Which Item? ").strip().lower()
+            if item_to_move in ["help"]:
+                help_move()
+                item_to_move = input("Which Item? ").strip().lower()
         else:
             item_to_move = argument
         destination = input("To Where? ").strip().lower()
+        if destination in ["help"]:
+            help_move()
+            destination = input("To Where? ").strip().lower()
+
         if destination in ["bag", "b", "lootbag"]:
             #move from inventory to lootbag
             if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
@@ -180,6 +189,9 @@ while True:
         shop.draw()
         if argument is None or argument in ["debug"]:
             buy_sell = input(f"Buying or Selling, {hero.name}? ").strip().lower()
+            if buy_sell in ["help"]:
+                help_shop()
+                buy_sell = input(f"Buying or Selling, {hero.name}? ").strip().lower()
             if argument in ["debug"]:
                 shop_dict_before = shop.to_dict()
                 shop = None
@@ -200,11 +212,17 @@ while True:
         if buy_sell in ["b", "buy", "buying", "purchase"]:
             hero.inventory.draw(hero)
             item_to_buy = input(f"Whaddaya Buyin, {hero.name}? ").strip().lower()
+            if item_to_buy in ["help"]:
+                help_shop()
+                item_to_buy = input(f"Whaddaya Buyin, {hero.name}? ").strip().lower()
             shop.buy(hero, item_to_buy)
 
         elif buy_sell in ["s", "sell", "selling"]:
             hero.inventory.draw(hero)
             item_to_sell = input(f"Whatcha got for me, {hero.name}? ").strip().lower()
+            if item_to_sell in ["help"]:
+                help_shop()
+                item_to_sell = input(f"Whatcha got for me, {hero.name}? ").strip().lower()
             shop.sell(hero, item_to_sell)
 
         else:
@@ -227,9 +245,15 @@ while True:
     elif action in ["drop", "d"]:
         if argument is None:
             item_name = input("Which Weapon? ").strip().lower()
+            if item_name in ["help"]:
+                help_drop()
+                item_name = input("Which Weapon? ").strip().lower()
         else:
             item_name = argument
             source = input("From Where? ").strip().lower()
+            if source in ["help"]:
+                help_drop()
+                source = input("From Where? ").strip().lower()
             if source in ["b", "bag", "lootbag"]:
                 hero.loot_bag.remove_item(item_name)
                 hero.loot_bag.draw_bag()
@@ -246,8 +270,14 @@ while True:
         
         if argument is None:
             item_to_use = input(f"What would you like to use, {hero.name}? ").strip().lower()
+            if item_to_use in ["help"]:
+                help_drop()
+                item_to_use = input(f"What would you like to use, {hero.name}? ").strip().lower()
         else:
             item_to_use = argument
+            if item_to_use in ["help"]:
+                help_drop()
+                item_to_use = input(f"What would you like to use, {hero.name}? ").strip().lower()
             hero.use(item_to_use)
             hero.inventory.draw(hero)
 
