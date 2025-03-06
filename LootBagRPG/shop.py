@@ -24,6 +24,7 @@ class Shop:
             if hero.gold >= price:
                 hero.gold -= price
                 print(f"{matching_item} Purchased for {price} Gold.")
+                #Check if inventory full, dont waste gold
                 hero.inventory.add_item(matching_item)
                 print(f"Thanks for stopping by, {hero.name}!")
             else:
