@@ -206,6 +206,19 @@ class Hero(Character):
 
     def to_dict(self) -> dict:
         #Convert object to dict for saving
+        
+        inventory_list = self.inventory.items
+        lootbag_list = self.loot_bag.items
+        for i, item in enumerate(inventory_list):
+            if isinstance(item, Potion):
+                inventory_list[i] = item.to_dict()
+            elif isinstance(item, Weapon):
+                inventory_list[i] = item.to_dict()
+        
+        for i, item in enumerate(lootbag_list):
+            if isinstance(item, Weapon):
+                lootbag_list[i] = item.to_dict()
+
         return {
             "name": self.name,
             "level": self.level,
@@ -217,19 +230,32 @@ class Hero(Character):
             "attack_rating": self.attack_rating,
             "defense": self.defense,
             "gold": self.gold,
-            "loot_bag": [item for item in self.loot_bag.items],
-            "inventory": [item for item in self.inventory.items]
+            "loot_bag": lootbag_list,
+            "inventory": inventory_list
         }
     @classmethod
     def from_dict(cls, data):
 
         #add weapons to weapons list so they can be accessed later
-        for item in data["loot_bag"] + data["inventory"]:
-            Item.all_items_list.append(item) #possibly remove, unsure if needed
-            if item.item_type == "Weapon":
-                Weapon.all_weapons_list.append(item)
-            elif item.item_type == "Potion":
-                Potion.all_potions_list.append(item)
+        for i, item in enumerate(data["loot_bag"]):
+            if item["item_type"] == "Weapon":
+                item_to_add = Weapon.from_dict(item)
+                data["loot_bag"][i] = item_to_add
+                Item.all_items_list.append(item_to_add)
+
+            elif item["item_type"] == "Potion":
+                item_to_add = Potion.get_potion_by_name(item["name"])
+                data["loot_bag"][i] = item_to_add
+
+        for i, item in enumerate(data["inventory"]):
+            if item["item_type"] == "Weapon":
+                item_to_add = Weapon.from_dict(item)
+                data["inventory"][i] = item_to_add
+                Item.all_items_list.append(item)
+
+            elif item["item_type"] == "Potion":
+                item_to_add = Potion.get_potion_by_name(item["name"])
+                data["inventory"][i] = item_to_add
 
         hero = cls(
             name=data["name"],
@@ -243,6 +269,11 @@ class Hero(Character):
             inventory=Inventory(items=data["inventory"]),
             gold=data["gold"]
         )
+
+        hero.health_max = data["health_max"]
+        hero.mana_max = data["mana_max"]
+        hero.health_bar = HealthBar(hero, color= "red")
+        hero.mana_bar = ManaBar(hero, color= "blue")
         return hero
 
 class Enemy(Character):
@@ -307,9 +338,9 @@ class Enemy(Character):
         weapon_name = enemy_data["weapon"]
         #always spawn enemy with basic stick if level 1
         if hero.level < 2:
-            weapon = Weapon.get_weapon_by_name(enemy_data["weapon"])
+            enemy_weapon = Weapon.get_weapon_by_name(weapon_name=weapon_name)
         else:
-            weapon = Weapon.generate_weapon(weapon_name)
+            enemy_weapon = Weapon.generate_weapon(weapon_base=weapon_name)
 
         print(f"A {name} appears!")
         return cls(
@@ -318,7 +349,7 @@ class Enemy(Character):
             mana=mana, 
             attack_rating = attack_rating, 
             defense = defense, 
-            weapon=weapon
+            weapon=enemy_weapon
             )
 
     def generate_drops(self) -> list:
@@ -346,6 +377,7 @@ class Enemy(Character):
 
     def to_dict(self) -> dict:
         #Convert object to dict for saving
+        weapon_dict = self.weapon.to_dict()
         return {
             "name": self.name,
             "health": self.health,
@@ -354,12 +386,13 @@ class Enemy(Character):
             "mana_max": self.mana_max,
             "attack_rating": self.attack_rating,
             "defense": self.defense,
-            "weapon": self.weapon
+            "weapon": weapon_dict
         }
     @classmethod
     def from_dict(cls, data):
 
         #Possibly need to configure weapon object, maybe not. Test.
+        weapon = Weapon.from_dict(data["weapon"])
 
         enemy = cls(
             name=data["name"],
@@ -367,7 +400,7 @@ class Enemy(Character):
             mana=data["mana"],
             attack_rating=data["attack_rating"],
             defense=data["defense"],
-            weapon=data["weapon"],
+            weapon=weapon,
             health_max=data["health_max"],
             mana_max=data["mana_max"]
         )

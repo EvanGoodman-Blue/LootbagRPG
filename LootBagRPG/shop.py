@@ -51,14 +51,20 @@ class Shop:
             print(f"{item_name}: {item_obj.value} gold")
 
     def to_dict(self):
-        return self.stock
+        stock_dict = self.stock
+        for item, value in stock_dict:
+            if isinstance(value, Potion):
+                value = value.to_dict()
+            if isinstance(value, Weapon):
+                value = value.to_dict()
+        return stock_dict
 
     @classmethod
     def from_dict(cls, data):
 
         shop = Shop(data)
         stocked_weapon_dict = list(data.values())[1]
-        stocked_weapon = Weapon.get_weapon_by_name(stocked_weapon_dict.name)
+        stocked_weapon = Weapon.get_weapon_by_name(weapon_name=stocked_weapon_dict["name"],prefix=stocked_weapon_dict["prefix"],suffix=stocked_weapon_dict["suffix"])
         shop.stock[stocked_weapon.name] = stocked_weapon
         
         return shop

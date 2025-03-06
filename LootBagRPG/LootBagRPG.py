@@ -31,8 +31,6 @@ hero = Hero(name=username, level=1, xp=0, health=100, mana=10, attack_rating=50,
 #hero = Hero.from_dict(herodictbefore)
 Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
 
-
-
 game_state = {
     "Autopickup": auto_pickup,
     "menu": "enemy"
@@ -60,7 +58,26 @@ while True:
         action = action_parts[0]
         argument = action_parts[1] if len(action_parts) > 1 else None
 
-    if action in ["debug"]:
+    if action in ["save"]:
+        hero_save = hero.to_dict()
+        enemy_save = Enemy.active_enemy.to_dict()
+        save_game(hero=hero_save, enemy=enemy_save, game_state=game_state)
+        
+
+    elif action in ["load"]:
+        if argument:
+            filename = argument
+        else:
+            filename = input("Save file name? ")
+        hero_save, enemy_save, game_state, shop_save = load_game(filename)
+        hero = None
+        Enemy.active_enemy = None
+        hero = Hero.from_dict(hero_save)
+        Enemy.active_enemy = Enemy.from_dict(enemy_save)
+        #run function to change to correct game state, refactor all actions to take place in functions
+        #load_game_state(game_state)
+
+    elif action in ["debug"]:
         enemydictbefore = Enemy.active_enemy.to_dict()
         Enemy.active_enemy = None
         Enemy.active_enemy = Enemy.from_dict(enemydictbefore)
@@ -91,7 +108,7 @@ while True:
         print("Type 'help' to open this menu again")
     
     elif action in ["attack", "atk", "a", ""] and Enemy.active_enemy is not None:
-
+        game_state["menu"] = "enemy"
         drops = hero.attack(Enemy.active_enemy)
         if drops is not None:
             hero.gain_xp(drops)

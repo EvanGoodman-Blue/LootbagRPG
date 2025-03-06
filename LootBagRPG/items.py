@@ -26,6 +26,10 @@ class Item:
             None
         )
     
+    def to_dict(self):
+        #implement generic item to dict function that checks which class object is and calls appropriate function.
+        pass
+    
     def __repr__(self):
         return (f"{self.__class__.__name__}({self.name}," 
         f"Type: {self.item_type}," 
@@ -35,7 +39,7 @@ class Item:
 class Weapon(Item):   
     all_weapons_list = []
     WEAPON_PREFIXES = {
-        "test": {
+        "": {
             "damage": 0,
             "hit_rating": 0,
             "affix_rarity": 0,
@@ -56,7 +60,7 @@ class Weapon(Item):
 
     }
     WEAPON_SUFFIXES = {
-        "test": {
+        "": {
             "damage": 0,
             "hit_rating": 0,
             "affix_rarity": 0,
@@ -108,7 +112,8 @@ class Weapon(Item):
                  value: int, 
                  weight: int,
                  prefix: str = None,
-                 suffix: str = None
+                 suffix: str = None,
+                 weapon_base: str = None
                  ) -> None:
         super().__init__(name=name, item_type="Weapon", value=value, weight=weight)
         self.weapon_type = weapon_type
@@ -118,6 +123,7 @@ class Weapon(Item):
 
         self.prefix = prefix
         self.suffix = suffix
+        self.weapon_base = weapon_base
 
         if self.prefix and self.prefix in Weapon.WEAPON_PREFIXES:
             self.apply_affix(Weapon.WEAPON_PREFIXES[self.prefix])
@@ -166,6 +172,8 @@ class Weapon(Item):
             else:
                 suffix = None
 
+        weapon_base_name = weapon_base["name"]
+
         return cls(
             name=weapon_base["name"],
             weapon_type=weapon_base["weapon_type"],
@@ -175,8 +183,37 @@ class Weapon(Item):
             value=weapon_base["value"],
             weight=weapon_base["weight"],
             prefix=prefix,
-            suffix=suffix
+            suffix=suffix,
+            weapon_base=weapon_base_name
         )
+    
+    def to_dict(self):
+        if self.prefix is None:
+            self.prefix = ""
+        if self.suffix is None:
+            self.suffix = ""
+        return {
+            "name": self.name,
+            "item_type": self.item_type,
+            "weapon_type": self.weapon_type,
+            "rarity": self.rarity,
+            "damage": self.damage,
+            "hit_rating": self.hit_rating,
+            "value": self.value,
+            "weight": self.weight,
+            "prefix": self.prefix,
+            "suffix": self.suffix,
+            "weapon_base": self.weapon_base
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict):
+        #call generate weapon with weapon base, prefix and suffix
+        weapon_base = data["weapon_base"]
+        prefix = data["prefix"]
+        suffix = data["suffix"]
+        weapon = Weapon.generate_weapon(weapon_base=weapon_base, prefix=prefix, suffix=suffix)
+        return weapon
 
     @classmethod
     def get_weapon_by_name(cls, weapon_name: str, prefix: str = None, suffix: str = None) -> object:
@@ -198,14 +235,14 @@ class Weapon(Item):
                 print(f"Invalid Weapon")
                 return None
             else:
-                generated_weapon = Weapon.generate_weapon(weapon_base=weapon_base, prefix=prefix, suffix=suffix)
+                generated_weapon = Weapon.generate_weapon(weapon_base=weapon_base["name"], prefix=prefix, suffix=suffix)
                 return generated_weapon
         else:
             return found_weapon
 
     
     def __repr__(self) -> str:
-        return (f"Weapon({self.name}, Type: {self.weapon_type}, Rarity: {self.rarity}, Damage: {self.damage}, Hit Rating: {self.hit_rating}, Value: {self.value}, Weight: {self.weight})")
+        return (f"OBJECT.Weapon({self.name}, Type: {self.weapon_type}, Rarity: {self.rarity}, Damage: {self.damage}, Hit Rating: {self.hit_rating}, Value: {self.value}, Weight: {self.weight})")
 
 class Potion(Item):
     all_potions_list = []
@@ -235,6 +272,30 @@ class Potion(Item):
             None
         )
     
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "item_type": self.item_type,
+            "potion_type": self.potion_type,
+            "effect_value": self.effect_value,
+            "duration": self.duration,
+            "value": self.value,
+            "weight": self.weight,
+            "description": self.description
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict):
+        return cls(
+            name=data["name"],
+            potion_type=data["potion_type"],
+            effect_value=data["effect_value"],
+            value=data["value"],
+            weight=data["weight"],
+            description=data["description"],
+            duration=data["duration"]
+        )
+
     def __repr__(self):
         return (f"Potion({self.name}, "
         f"Type: {self.potion_type}, "
@@ -267,22 +328,22 @@ fists = Weapon(name="Fists",
 """
 
 
-wooden_stick = Weapon(name="Wooden Stick",
+"""wooden_stick = Weapon(name="Wooden Stick",
                       weapon_type="club",
                       rarity="Crude",
                       damage=2,
                       hit_rating=75,
                       value=5,
-                      weight=1)
+                      weight=1)"""
 
-iron_dagger = Weapon(name="Iron Dagger",
+"""iron_dagger = Weapon(name="Iron Dagger",
                       weapon_type="dagger",
                       rarity="Common",
                       damage=5,
                       hit_rating=50,
                       value=10,
                       weight=1)
-                      
+                      """
 
 mana_potion = Potion(name="Mana Potion",
                      potion_type="mana",

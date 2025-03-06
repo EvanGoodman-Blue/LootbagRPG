@@ -6,11 +6,13 @@ class Inventory:
                  weight_max: int = 10,
                  items: list = None
                  ) -> None:
-        self.items = items if items is not None else []
+        
         self.weight = weight
         self.weight_max = weight_max
-        self.update_inventory()
+        self.items = items if items is not None else []
 
+        self.update_inventory()
+        
     def update_weight(self) -> None:
         self.weight = 0
         if len(self.items) > 0:
@@ -64,3 +66,9 @@ class Inventory:
             print(f"{item.name}")
 
         print(f"Gold: {hero.gold}")
+
+    def __repr__(self):
+        return (f"{self.__class__.__name__}({self.name}," 
+        f"Weight: {self.weight}," 
+        f"Weight_max: {self.weight_max}, "
+        f"Items: {self.items})")

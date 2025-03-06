@@ -98,3 +98,9 @@ class LootBag:
         for item in self.items:
             print(f"{item.rarity} {item.name}, dmg: {item.damage}, atk:{item.hit_rating}")
         print (f"Bag Damage: {self.damage}  Hit Rating: {self.hit_rating}")
+
+    def __repr__(self):
+        return (f"{self.__class__.__name__}({self.name}," 
+        f"Weight: {self.weight}," 
+        f"Weight_max: {self.weight_max}, "
+        f"Items: {self.items})")
