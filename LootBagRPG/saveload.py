@@ -6,7 +6,7 @@ SAVE_FILE = "savegame.json"
 def save_game(hero, enemy, game_state, shop: dict = None):
 
     #create filename by using hero.name
-    SAVE_FILE = f"{hero['name']}"
+    SAVE_FILE = f"{hero['name']}.json"
 
     data = {
         "hero": hero,
@@ -22,7 +22,7 @@ def save_game(hero, enemy, game_state, shop: dict = None):
             #for subitem in value:
                 #print(f"{subitem}: {subitem.get(subitem)}")
         json.dump(data, file, indent=4)
-    print(f"Game saved to {SAVE_FILE}.json")
+    print(f"Game saved to {SAVE_FILE}")
 
     #except Exception as e:
         #print(f"Error saving game: {e}")
@@ -36,7 +36,7 @@ def load_game(filename):
     try:
         with open(filename, "r") as file:
             data = json.load(file)
-        print(f"{filename}.json Loaded Successfully.")
+        print(f"{filename} Loaded Successfully.")
         return data.get("hero"), data.get("enemy"), data.get("game_state"), data.get("shop")
     
     except Exception as e:
