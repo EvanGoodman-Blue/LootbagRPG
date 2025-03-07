@@ -127,7 +127,9 @@ class Hero(Character):
         self.inventory.add_item(drops[2])
 
     def inspect(self, target) -> None:
-        if target:
+        if target is None:
+            print("No enemies present...")
+        if isinstance(target, Enemy):
             print(f"Inspecting Enemy...")
             print(f"Name: {target.name}")
             print(f"Max Health: {target.health_max}")
@@ -138,7 +140,25 @@ class Hero(Character):
             print(f"    Weapon Damage: {target.weapon.damage}")
             print(f"    Weapon Hit Rating: {target.weapon.hit_rating}")
         else:
-            print("No enemies present...")
+            target = Item.get_item_by_name(target)
+            if isinstance(target, Weapon):
+                print(f"Inspecting {target.name}...")
+                print(f"Name: {target.name}")
+                print(f"Rarity: {target.rarity}")
+                print(f"Prefix: {target.prefix}")
+                print(f"Suffix: {target.suffix}")
+                print(f"Damage: {target.damage}")
+                print(f"Hit Rating: {target.hit_rating}")
+                print(f"Value: {target.value}")
+                print(f"Weight: {target.weight}")
+                
+            elif isinstance(target, Potion):
+                print(f"Inspecting {target.name}...")
+                print(f"Name: {target.name}")
+                print(f"Description: {target.description}")
+                print(f"Duration: {target.duration}")
+                print(f"Value: {target.value}")
+                print(f"Weight: {target.weight}")
 
     def draw_stats(self) -> None:
         print(f"{self.name}'s Stats")

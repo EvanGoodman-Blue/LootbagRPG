@@ -87,7 +87,10 @@ class LootBag:
             return True
 
     def get_items(self) -> list:
-        return self.items
+        item_names = []
+        for item in self.items:
+            item_names.append(item.name)
+        return item_names
     
     def draw_bag(self) -> None:
         #print bag weight/weight_max
@@ -96,7 +99,7 @@ class LootBag:
         #print list of bag items including name, rarity, damage, atk rating
         print(f"Bag Contents: ")
         for item in self.items:
-            print(f"{item.rarity} {item.name}, dmg: {item.damage}, atk:{item.hit_rating}")
+            print(f"{item.name}, dmg: {item.damage}, atk:{item.hit_rating}")
         print (f"Bag Damage: {self.damage}  Hit Rating: {self.hit_rating}")
 
     def __repr__(self):

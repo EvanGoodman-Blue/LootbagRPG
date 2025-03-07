@@ -54,7 +54,10 @@ class Inventory:
             return True
 
     def get_items(self) -> list:
-        return self.items
+        item_names = []
+        for item in self.items:
+            item_names.append(item.name)
+        return item_names
     
     def draw(self, hero) -> None:
         #print inventory weight/weight_max
