@@ -123,7 +123,7 @@ class Hero(Character):
         print(f"{self.name} Picked up {drops[1]} Gold! Current Gold: {self.gold}")
 
     def pick_up(self, drops) -> None:
-        #eventually implement intermediate inventory system
+        #IMPLEMENT ERROR CHECKS HERE, IF NO DROPS, INVENTORY FULL ETC
         self.inventory.add_item(drops[2])
 
     def inspect(self, target) -> None:

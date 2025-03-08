@@ -4,7 +4,7 @@ from character import Hero, Enemy
 from loot_bag import LootBag
 from inventory import Inventory
 import os
-from items import Item
+from items import Item, Weapon, Potion
 from shop import Shop
 from saveload import *
 from help_messages import *
@@ -68,15 +68,18 @@ def option_menu(options: list, auto_option: str = None) -> str:
         print(f"...or press <ENTER> to {auto_option}")
     print(f"___________________________")
     action_input = input("Please Select An Option... ").strip().lower()
-    if action_input == "":
+    if action_input == "" and auto_option:
         return action_input
-    try:
-        action_input = int(action_input)
-    except Exception as e:
-        print(f"Command not Recognized. Please Choose a Valid Option.")
-        option_menu(options, auto_option)
-    action_input -= 1
-    return action_input
+    elif action_input in ["help", "h", "?"]:
+        return "help"
+    else:
+        try:
+            action_input = int(action_input)
+        except Exception as e:
+            print(f"Command not Recognized. Please Choose a Valid Option.")
+            option_menu(options, auto_option)
+        action_input -= 1
+        return action_input
 
 def inventory_menu() -> None:
     game_state["menu"] = "inventory"
@@ -88,6 +91,21 @@ def inventory_menu() -> None:
     #lootbag
     #character
     #exit(attack)
+    options = ["Move", "Drop", "Inspect", "Lootbag", "Character"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options, auto_option)
+    if action_input == 0:
+        move_menu()
+    elif action_input == 1:
+        drop_menu()
+    elif action_input == 2:
+        inspect_menu()
+    elif action_input == 3:
+        lootbag_menu()
+    elif action_input == 4:
+        character_menu()
+    elif action_input == "":
+        return
 
 def lootbag_menu() -> None:
     game_state["menu"] = "lootbag"
@@ -99,6 +117,21 @@ def lootbag_menu() -> None:
     #inventory
     #character
     #exit(attack)
+    options = ["Move", "Drop", "Inspect", "Inventory", "Character"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options, auto_option)
+    if action_input == 0:
+        move_menu()
+    elif action_input == 1:
+        drop_menu()
+    elif action_input == 2:
+        inspect_menu()
+    elif action_input == 3:
+        inventory_menu()
+    elif action_input == 4:
+        character_menu()
+    elif action_input == "":
+        return
 
 def inspect_menu() -> None:
     #Options:
@@ -139,13 +172,233 @@ def character_menu() -> None:
     hero.health_bar.draw()
     hero.mana_bar.draw()
     hero.draw_stats()
+    options = ["Inventory", "Lootbag", "Heal", "Use"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options, auto_option)
+    if action_input == 0:
+        inventory_menu()
+    elif action_input == 1:
+        lootbag_menu()
+    elif action_input == 2:
+        heal_menu()
+    elif action_input == 3:
+        use_menu()
+    elif action_input == "":
+        return
     return
 
 def shop_menu() -> None:
-    pass
+    #Options:
+    #Buy
+    #Sell
+    #Move
+    #exit(attack)
+    game_state["menu"] = "shop"
+    shop.generate_shop()
+    shop.draw()
+    options = ["Buy", "Sell", "Move"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options, auto_option)
+    
+    if action_input == 0:
+        hero.inventory.draw(hero)
+        options = []
+        for item_name, item_obj in shop.stock.items():
+            options.append(item_name)
+        action_input = option_menu(options)
+        item_to_buy = options[action_input]
+        shop.buy(hero, item_to_buy)
+
+    elif action_input == 1:
+        hero.inventory.draw(hero)
+        options = hero.inventory.get_items()
+        action_input = option_menu(options)
+        item_to_sell = options[action_input]
+        shop.sell(hero, item_to_sell)
+
+    elif action_input == 2:
+        move_menu()
+
+    elif action_input == "":
+        return
 
 def heal_menu() -> None:
-    pass
+    hero.heal(10)
+    hero.health_bar.draw()
+    hero.mana_bar.draw()
+
+def move_menu() -> None:
+    #Options:
+    #From Inventory -> Lootbag
+    #From Lootbag -> Inventory
+    #exit(attack)
+    options = ["Inventory -> Lootbag", "Lootbag -> Inventory"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options, auto_option)
+
+    if action_input == 0:
+        #move from inventory to lootbag
+        options = hero.inventory.get_items()
+        action_input = option_menu(options)
+        item_to_move = options[action_input]
+        if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
+            hero.loot_bag.add_item(item_to_move)
+        elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
+            print(f"{item_to_move} won't fit in your lootbag.")
+
+    elif action_input == 1:
+        #move from lootbag to inventory
+        options = hero.loot_bag.get_items()
+        action_input = option_menu(options)
+        item_to_move = options[action_input]
+        if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
+            hero.inventory.add_item(item_to_move)
+        elif hero.inventory.weight >= hero.inventory.weight_max:
+            print(f"{item_to_move} won't fit in your inventory.")
+    elif action_input == "":
+        return
+    
+def drop_menu() -> None:
+
+    options = ["From Inventory", "From Lootbag"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options, auto_option)
+
+    if action_input == 0:
+        options = hero.inventory.get_items()
+        action_input = option_menu(options)
+        item_to_drop = options[action_input]
+        hero.inventory.remove_item(item_to_drop)
+        hero.inventory.draw()
+
+    elif action_input == 1:
+        options = hero.loot_bag.get_items()
+        action_input = option_menu(options)
+        item_to_drop = options[action_input]
+        hero.loot_bag.remove_item(item_to_drop)
+        hero.loot_bag.draw_bag()
+
+    elif action_input == "":
+        return
+
+def use_menu() -> None:
+    #Options
+    #Inventory Items
+    options = hero.inventory.get_items()
+    action_input = option_menu(options)
+    item_to_use = options[action_input]
+    hero.use(item_to_use)
+    hero.inventory.draw(hero)
+
+def load_menu() -> list:
+    filename = input("Save file name? ")
+    hero_save, enemy_save, game_state, shop_save = load_game(filename)
+    hero = None
+    Enemy.active_enemy = None
+    hero = Hero.from_dict(hero_save)
+    enemy = Enemy.from_dict(enemy_save)
+    #run function to change to correct game state, refactor all actions to take place in functions
+    #load_game_state(game_state)
+    options_list = game_state["options_list"]
+    return hero, enemy, options_list
+
+def save_menu() -> None:
+    hero_save = hero.to_dict()
+    enemy_save = Enemy.active_enemy.to_dict()
+    save_game(hero=hero_save, enemy=enemy_save, game_state=game_state)
+
+def help_menu() -> None:
+    options = ["General", "Attack", "Saving/Loading", "Inventory", "Lootbag", "Stats", "Inspect", "Shop", "Use", "Heal", "Move", "Drop"]
+    auto_option = ["Attack"]
+    action_input = option_menu(options=options, auto_option=auto_option)
+
+    if action_input == 0:
+        help_general()
+    elif action_input == 1:
+        help_attack()
+    elif action_input == 2:
+        help_save_load()
+    elif action_input == 3:
+        help_inventory()
+    elif action_input == 4:
+        help_lootbag()
+    elif action_input == 5:
+        help_stats()
+    elif action_input == 6:
+        help_inspect()
+    elif action_input == 7:
+        help_shop()
+    elif action_input == 8:
+        help_use()
+    elif action_input == 9:
+        help_heal()
+    elif action_input == 10:
+        help_move()
+    elif action_input == 11:
+        help_drop()
+    elif action_input == "":
+        return
+    help_menu()
+
+def pickup_menu(drops) -> None:
+    hero.pick_up(drops)
+    drops = None
+
+def add_menu() -> None:
+    #Options:
+    #Gold
+    #XP
+    #Item
+    #exit(attack)
+    options = ["Gold", "XP", "Item"]
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+
+    if action_input == "":
+        return
+    if action_input == 0:
+        hero.gold += 10
+        print("Added 10 gold.")
+    elif action_input == 1:
+        hero.gain_xp(drops=None,xp=50)
+    elif action_input == 2:
+        options = ["Mana Potion", "Wooden Stick", "Iron Dagger"]
+        action_input = option_menu(options, auto_option)
+        item_to_add = options[action_input]
+        if action_input == 0:
+            hero.inventory.add_item(item_to_add)
+        elif action_input == 1:
+            weapon_to_add = Weapon.generate_weapon("Wooden Stick")
+            hero.inventory.add_item(weapon_to_add.name)
+        elif action_input == 2:
+            weapon_to_add = Weapon.generate_weapon("Iron Dagger")
+            hero.inventory.add_item(weapon_to_add.name)
+        hero.inventory.draw(hero)
+    add_menu()
+    
+
+def encounter_menu() -> None:
+    #if autoencounter off, present options here
+    #Set up autocall if autoencounter on
+    Enemy.active_enemy = Enemy.spawn_enemy(hero)
+    #remove if drops should be permanent (also refactor attack function returns)
+    drops = None
+
+def attack_menu() -> None:
+    game_state["menu"] = "enemy"
+    drops = hero.attack(Enemy.active_enemy)
+    if drops is not None:
+        hero.gain_xp(drops)
+        hero.gain_gold(drops)
+        #Call pickup_menu(drops) here if autopickup off
+
+    if Enemy.active_enemy is not None and Enemy.active_enemy.health > 0 :
+        Enemy.active_enemy.attack(hero)
+
+    hero.health_bar.draw()
+    hero.mana_bar.draw()
+    if Enemy.active_enemy is not None:
+        Enemy.active_enemy.health_bar.draw()
 
 #Startup, Main Menu
 #Settings
@@ -193,8 +446,9 @@ while True:
 
     #Input choice parsing
     #"Help" and other special keywords check here
-    #Convert input to int, subtract 1 to be consistent with option menu 0-indexing
-    
+    if action_input == "help":
+        help_menu()
+        continue
 
     #Prototype execution test
     if action_input == 0:
@@ -215,160 +469,21 @@ while True:
     elif action_input == 5:
         #Heal character
         heal_menu()
-
-    #Input parsing
-    if action_input == "":
-        action = ""
-        argument = None
-    else:
-        action_parts = action_input.split(maxsplit=1)
-        action = action_parts[0]
-        argument = action_parts[1] if len(action_parts) > 1 else None
-
-    if action in ["save"]:
-        hero_save = hero.to_dict()
-        enemy_save = Enemy.active_enemy.to_dict()
-        save_game(hero=hero_save, enemy=enemy_save, game_state=game_state)
+    elif action_input == 6:
+        #Load menu
+        hero, Enemy.active_enemy, options_list = load_menu()
+    elif action_input == 7:
+        #Save menu
+        save_menu()
+    elif action_input == "":
+        #Attack
+        attack_menu()
+    elif action_input == -1:
+        add_menu()
         
-    elif action in ["load"]:
-        if argument:
-            filename = argument
-        else:
-            filename = input("Save file name? ")
-        hero_save, enemy_save, game_state, shop_save = load_game(filename)
-        hero = None
-        Enemy.active_enemy = None
-        hero = Hero.from_dict(hero_save)
-        Enemy.active_enemy = Enemy.from_dict(enemy_save)
-        #run function to change to correct game state, refactor all actions to take place in functions
-        #load_game_state(game_state)
-        options_list = game_state["options_list"]
-
-    elif action in ["debug"]:
-        enemydictbefore = Enemy.active_enemy.to_dict()
-        Enemy.active_enemy = None
-        Enemy.active_enemy = Enemy.from_dict(enemydictbefore)
-        enemydictafter = Enemy.active_enemy.to_dict()
-        print("BEFORE")
-        for item in enemydictbefore:
-            print(f"{item}: {enemydictbefore.get(item)}")
-        print("----------------")
-        print("AFTER")
-        for item in enemydictafter:
-            print(f"{item}: {enemydictafter.get(item)}")
-        if enemydictbefore == enemydictafter:
-            print("YES")
-
-    elif action in ["help", "tutorial", "action", "?"]:
-        if argument is None:
-            help_general()
-        elif argument in ["attack"]:
-            help_attack()
-        elif argument in ["save"]:
-            help_save_load()
-        elif argument in ["load"]:
-            help_save_load()
-        elif argument in ["inventory"]:
-            help_inventory()
-        elif argument in ["lootbag"]:
-            help_lootbag()
-        elif argument in ["stats"]:
-            help_stats()
-        elif argument in ["inspect"]:
-            help_inspect()
-        elif argument in ["shop"]:
-            help_shop()
-        elif argument in ["use"]:
-            help_use()
-        elif argument in ["heal"]:
-            help_heal()
-        elif argument in ["move"]:
-            help_move()
-        elif argument in ["drop"]:
-            help_drop()
-        
-    elif action in ["attack", "atk", "a", ""] and Enemy.active_enemy is not None:
-        game_state["menu"] = "enemy"
-        drops = hero.attack(Enemy.active_enemy)
-        if drops is not None:
-            hero.gain_xp(drops)
-            hero.gain_gold(drops)
-
-        if Enemy.active_enemy is not None and Enemy.active_enemy.health > 0 :
-            Enemy.active_enemy.attack(hero)
-
-        hero.health_bar.draw()
-        hero.mana_bar.draw()
-        if Enemy.active_enemy is not None:
-            Enemy.active_enemy.health_bar.draw()
-
-    elif (action in ["pickup"] and drops is not None and len(drops) > 2) or (action in [""] and drops is not None and len(drops) > 2 and options_list[1] == True):
-        hero.pick_up(drops)
-        drops = None
-
-    elif action in ["inspect", "ins"]:
-        #REMOVE
-        pass
-
-    elif action in ["c", "stats", "char", "character"]:
-        #REMOVE
-        pass
-
-    elif (action in ["new", "n", "next"] and Enemy.active_enemy is None) or (Enemy.active_enemy is None and options_list[0] is True and action in [""]):
-        Enemy.active_enemy = Enemy.spawn_enemy(hero)
-        #remove if drops should be permanent (also refactor attack function returns)
-        drops = None
-
-    elif action in ["new", "n", "next"] and Enemy.active_enemy is not None:
-        print("Already fighting an enemy!")
-
-    elif action in ["b", "bag"]:
-        #REMOVE
-        pass
-
-    elif action in ["e", "i", "inventory", "inv"]:
-        #REMOVE
-        pass
-
-    elif action in ["m", "move"]:
-        if argument is None:
-            item_to_move = input("Which Item? ").strip().lower()
-            if item_to_move in ["help"]:
-                help_move()
-                item_to_move = input("Which Item? ").strip().lower()
-        else:
-            item_to_move = argument
-        destination = input("To Where? ").strip().lower()
-        if destination in ["help"]:
-            help_move()
-            destination = input("To Where? ").strip().lower()
-
-        if destination in ["bag", "b", "lootbag"]:
-            #move from inventory to lootbag
-            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
-                hero.loot_bag.add_item(item_to_move)
-            elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
-                print(f"{item_to_move} won't fit in your lootbag.")
-
-        elif destination in ["e", "i", "inventory", "inv"]:
-            #move from lootbag to inventory
-            if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
-                hero.inventory.add_item(item_to_move)
-            elif hero.inventory.weight >= hero.inventory.weight_max:
-                print(f"{item_to_move} won't fit in your inventory.")
-        else:
-            print("Invalid Destination")
-
-    elif action in ["shop", "s"]:
-        game_state["menu"] = "shop"
-        shop.generate_shop()
-        shop.draw()
-        if argument is None or argument in ["debug"]:
-            buy_sell = input(f"Buying or Selling, {hero.name}? ").strip().lower()
-            if buy_sell in ["help"]:
-                help_shop()
-                buy_sell = input(f"Buying or Selling, {hero.name}? ").strip().lower()
-            if argument in ["debug"]:
+#Shop Save debug
+"""
+if argument in ["debug"]:
                 shop_dict_before = shop.to_dict()
                 shop = None
                 shop = Shop.from_dict(shop_dict_before)
@@ -383,89 +498,33 @@ while True:
                 if shop_dict_before == shop_dict_after:
                         print("YES")
                 print(shop_dict_after)
-        else:
-            buy_sell = argument
-        if buy_sell in ["b", "buy", "buying", "purchase"]:
-            hero.inventory.draw(hero)
-            item_to_buy = input(f"Whaddaya Buyin, {hero.name}? ").strip().lower()
-            if item_to_buy in ["help"]:
-                help_shop()
-                item_to_buy = input(f"Whaddaya Buyin, {hero.name}? ").strip().lower()
-            shop.buy(hero, item_to_buy)
+"""
 
-        elif buy_sell in ["s", "sell", "selling"]:
-            hero.inventory.draw(hero)
-            item_to_sell = input(f"Whatcha got for me, {hero.name}? ").strip().lower()
-            if item_to_sell in ["help"]:
-                help_shop()
-                item_to_sell = input(f"Whatcha got for me, {hero.name}? ").strip().lower()
-            shop.sell(hero, item_to_sell)
+#General Save Debug
+"""
+elif action in ["debug"]:
+        enemydictbefore = Enemy.active_enemy.to_dict()
+        Enemy.active_enemy = None
+        Enemy.active_enemy = Enemy.from_dict(enemydictbefore)
+        enemydictafter = Enemy.active_enemy.to_dict()
+        print("BEFORE")
+        for item in enemydictbefore:
+            print(f"{item}: {enemydictbefore.get(item)}")
+        print("----------------")
+        print("AFTER")
+        for item in enemydictafter:
+            print(f"{item}: {enemydictafter.get(item)}")
+        if enemydictbefore == enemydictafter:
+            print("YES")
+"""
 
-        else:
-            print("Command not Recognized.")
-
-
-    elif action in ["add"]:
-        if argument in ["g", "gold"]:
-            hero.gold += 10
-            print("Added 10 gold.")
-        elif argument in ["xp"]:
-            hero.gain_xp(drops=None,xp=50)
-        elif argument is None:
-            weapon_name = input("Which Weapon? ").strip().lower()
-        else:
-            weapon_name = argument
-            hero.loot_bag.add_item(weapon_name)
-            hero.loot_bag.draw_bag()
-
-    elif action in ["drop", "d"]:
-        if argument is None:
-            item_name = input("Which Weapon? ").strip().lower()
-            if item_name in ["help"]:
-                help_drop()
-                item_name = input("Which Weapon? ").strip().lower()
-        else:
-            item_name = argument
-            source = input("From Where? ").strip().lower()
-            if source in ["help"]:
-                help_drop()
-                source = input("From Where? ").strip().lower()
-            if source in ["b", "bag", "lootbag"]:
-                hero.loot_bag.remove_item(item_name)
-                hero.loot_bag.draw_bag()
-            elif source in ["e", "i", "inv", "inventory"]:
-                hero.inventory.remove_item(item_name)
-                hero.inventory.draw()
-
-    elif action in ["heal", "h", "restore"]:
-        hero.heal(10)
-        hero.health_bar.draw()
-        hero.mana_bar.draw()
-
-    elif action in ["use", "u"]:
-        
-        if argument is None:
-            item_to_use = input(f"What would you like to use, {hero.name}? ").strip().lower()
-            if item_to_use in ["help"]:
-                help_drop()
-                item_to_use = input(f"What would you like to use, {hero.name}? ").strip().lower()
-        else:
-            item_to_use = argument
-            if item_to_use in ["help"]:
-                help_drop()
-                item_to_use = input(f"What would you like to use, {hero.name}? ").strip().lower()
-            hero.use(item_to_use)
-            hero.inventory.draw(hero)
-
+#Input parsing
+"""
+    if action_input == "":
+        action = ""
+        argument = None
     else:
-        print("Action Not Recognized")
-
-    #if enemy.health == 0:
-        #enemy = enemy.die()
-
-
-    #if hero.health == 0:
-        #hero.die()
-        
-
-#
+        action_parts = action_input.split(maxsplit=1)
+        action = action_parts[0]
+        argument = action_parts[1] if len(action_parts) > 1 else None
+"""
