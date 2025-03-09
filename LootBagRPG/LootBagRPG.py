@@ -9,7 +9,8 @@ from shop import Shop
 from saveload import *
 from help_messages import *
 
-def settings_menu(options_list: list = None) -> list:
+def main_settings_menu() -> None:
+    global options_list
     if options_list is None:
         options_list = [True, True]
     os.system("cls")
@@ -17,6 +18,7 @@ def settings_menu(options_list: list = None) -> list:
     print(f"[1] AutoEncounter")
     print(f"[2] AutoPickup")
     print(f"[3] Main Menu")
+    print(f"...or press <ENTER> to go back")
     menu_option = input("Please Select An Option... ")
     if menu_option in ["1"]:
         os.system("cls")
@@ -25,9 +27,9 @@ def settings_menu(options_list: list = None) -> list:
         print(f"[2] AutoEncounter Off: The next enemy must be manually encountered after an enemy is killed.")
         menu_option = input("Please Select An Option... ")
         auto_encounter = True if menu_option in ["1"] else False
-        print(f"AutoPickup: {auto_encounter}")
+        print(f"AutoEncounter: {auto_encounter}")
         options_list[0] = auto_encounter
-        settings_menu(options_list)
+        main_settings_menu()
     elif menu_option in ["2"]:
         os.system("cls")
         print("AutoPickup Settings:")
@@ -37,11 +39,14 @@ def settings_menu(options_list: list = None) -> list:
         auto_pickup = True if menu_option in ["1"] else False
         print(f"AutoPickup: {auto_pickup}")
         options_list[1] = auto_pickup
-        settings_menu(options_list)
+        main_settings_menu()
     elif menu_option in ["3"]:
-        main_menu(options_list)
+        main_menu()
+    elif menu_option in [""]:
+        return
 
-def main_menu(options_list: list = None) -> list:
+def main_menu() -> None:
+    global options_list
     if options_list is None:
         options_list = [True, True]
     os.system("cls")
@@ -53,9 +58,9 @@ def main_menu(options_list: list = None) -> list:
     print(f"[3] Exit")
     menu_option = input("Please Select An Option... ")
     if menu_option in ["1"]:
-        return options_list
+        return
     elif menu_option in ["2"]:
-        settings_menu(options_list)
+        main_settings_menu()
     elif menu_option in ["3"]:
         exit()
 
@@ -91,7 +96,7 @@ def inventory_menu() -> None:
     #lootbag
     #character
     #exit(attack)
-    options = ["Move", "Drop", "Inspect", "Lootbag", "Character"]
+    options = ["Move", "Drop", "Inspect", "Lootbag", "Character", "Use"]
     auto_option = ["Attack"]
     action_input = option_menu(options, auto_option)
     if action_input == 0:
@@ -104,6 +109,8 @@ def inventory_menu() -> None:
         lootbag_menu()
     elif action_input == 4:
         character_menu()
+    elif action_input == 5:
+        use_menu()
     elif action_input == "":
         return
 
@@ -149,13 +156,19 @@ def inspect_menu() -> None:
     elif action_input == 1:
         #Inspect item in inventory, list all items
         options = hero.inventory.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_inspect = options[action_input]
         hero.inspect(item_to_inspect)
     elif action_input == 2:
         #Inspect item in lootbag, list all items
         options = hero.loot_bag.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_inspect = options[action_input]
         hero.inspect(item_to_inspect)
     elif action_input == "":
@@ -205,14 +218,20 @@ def shop_menu() -> None:
         options = []
         for item_name, item_obj in shop.stock.items():
             options.append(item_name)
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_buy = options[action_input]
         shop.buy(hero, item_to_buy)
 
     elif action_input == 1:
         hero.inventory.draw(hero)
         options = hero.inventory.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_sell = options[action_input]
         shop.sell(hero, item_to_sell)
 
@@ -239,7 +258,10 @@ def move_menu() -> None:
     if action_input == 0:
         #move from inventory to lootbag
         options = hero.inventory.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_move = options[action_input]
         if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
             hero.loot_bag.add_item(item_to_move)
@@ -249,7 +271,10 @@ def move_menu() -> None:
     elif action_input == 1:
         #move from lootbag to inventory
         options = hero.loot_bag.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_move = options[action_input]
         if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
             hero.inventory.add_item(item_to_move)
@@ -266,14 +291,20 @@ def drop_menu() -> None:
 
     if action_input == 0:
         options = hero.inventory.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_drop = options[action_input]
         hero.inventory.remove_item(item_to_drop)
         hero.inventory.draw()
 
     elif action_input == 1:
         options = hero.loot_bag.get_items()
-        action_input = option_menu(options)
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
         item_to_drop = options[action_input]
         hero.loot_bag.remove_item(item_to_drop)
         hero.loot_bag.draw_bag()
@@ -285,7 +316,10 @@ def use_menu() -> None:
     #Options
     #Inventory Items
     options = hero.inventory.get_items()
-    action_input = option_menu(options)
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+    if action_input == "":
+        return
     item_to_use = options[action_input]
     hero.use(item_to_use)
     hero.inventory.draw(hero)
@@ -307,9 +341,79 @@ def save_menu() -> None:
     enemy_save = Enemy.active_enemy.to_dict()
     save_game(hero=hero_save, enemy=enemy_save, game_state=game_state)
 
+def game_menu() -> None:
+    #Options:
+    #Settings
+    #Save
+    #Load
+    #Quit
+    options = ["Settings", "Save", "Load", "Quit"]
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+    if action_input == "":
+        return
+    elif action_input == 0:
+        game_settings_menu()
+    elif action_input == 1:
+        save_menu()
+    elif action_input == 2:
+        load_menu()
+    elif action_input == 3:
+        print("Are you sure? Don't forget to save!")
+        options = ["Yes, Quit", "Don't Quit"]
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            return
+        elif action_input == 0:
+            exit()
+        elif action_input == 1:
+            return
+        
+def game_settings_menu() -> None:
+    global options_list
+    if options_list is None:
+        options_list = [True, True]
+    os.system("cls")
+    print("Settings:")
+    #Options:
+    #AutoEncounter
+    #AutoPickup
+    options = ["AutoEncounter", "AutoPickup"]
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+    if action_input == "":
+        return
+    elif action_input == 0:
+        os.system("cls")
+        print("AutoPickup Settings:")
+        options = ["AutoEncounter On: The next enemy is automatically generated by pressing <ENTER> after an enemy is killed.",
+                    "AutoEncounter Off: The next enemy must be manually encountered after an enemy is killed."]
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            game_settings_menu()
+        auto_encounter = True if action_input == 0 else False
+        print(f"AutoEncounter: {auto_encounter}")
+        options_list[0] = auto_encounter
+        game_settings_menu()
+    elif action_input == 1:
+        os.system("cls")
+        print("AutoPickup Settings:")
+        options = ["AutoPickup On: Items will automatically be picked up by pressing <ENTER> after an enemy is killed.",
+                    "AutoPickup Off: Items must be manually picked up after an enemy is killed."]
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+        if action_input == "":
+            game_settings_menu()
+        auto_pickup = True if action_input == 0 else False
+        print(f"AutoPickup: {auto_pickup}")
+        options_list[1] = auto_pickup
+        game_settings_menu()
+
 def help_menu() -> None:
     options = ["General", "Attack", "Saving/Loading", "Inventory", "Lootbag", "Stats", "Inspect", "Shop", "Use", "Heal", "Move", "Drop"]
-    auto_option = ["Attack"]
+    auto_option = ["Go Back"]
     action_input = option_menu(options=options, auto_option=auto_option)
 
     if action_input == 0:
@@ -341,8 +445,16 @@ def help_menu() -> None:
     help_menu()
 
 def pickup_menu(drops) -> None:
-    hero.pick_up(drops)
-    drops = None
+    global options_list
+    if options_list[1] == False:
+        options = [f"Pick up {drops[2]}"]
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+    else:
+        action_input = 0
+    if action_input == 0:
+        hero.pick_up(drops)
+        drops = None
 
 def add_menu() -> None:
     #Options:
@@ -379,30 +491,47 @@ def add_menu() -> None:
 
 def encounter_menu() -> None:
     #if autoencounter off, present options here
+    global options_list
+    if options_list[0] == False:
+        options = ["Encounter Enemy"]
+        auto_option = ["Go Back"]
+        action_input = option_menu(options, auto_option)
+    else:
+        action_input = ""
     #Set up autocall if autoencounter on
-    Enemy.active_enemy = Enemy.spawn_enemy(hero)
+    if action_input == 0 or options_list[0] == True:
+        Enemy.active_enemy = Enemy.spawn_enemy(hero)
     #remove if drops should be permanent (also refactor attack function returns)
     drops = None
 
 def attack_menu() -> None:
     game_state["menu"] = "enemy"
-    drops = hero.attack(Enemy.active_enemy)
-    if drops is not None:
-        hero.gain_xp(drops)
-        hero.gain_gold(drops)
-        #Call pickup_menu(drops) here if autopickup off
+    if Enemy.active_enemy is None:
+        encounter_menu()
+    else:
+        drops = hero.attack(Enemy.active_enemy)
+        if drops is not None:
+            hero.gain_xp(drops)
+            hero.gain_gold(drops)
+            if len(drops) > 2:
+                pickup_menu(drops)
+            drops = None
 
-    if Enemy.active_enemy is not None and Enemy.active_enemy.health > 0 :
-        Enemy.active_enemy.attack(hero)
+        if Enemy.active_enemy is not None and Enemy.active_enemy.health > 0 :
+            Enemy.active_enemy.attack(hero)
 
-    hero.health_bar.draw()
-    hero.mana_bar.draw()
-    if Enemy.active_enemy is not None:
-        Enemy.active_enemy.health_bar.draw()
+        hero.health_bar.draw()
+        hero.mana_bar.draw()
+        if Enemy.active_enemy is not None:
+            Enemy.active_enemy.health_bar.draw()
+
+        if Enemy.active_enemy is None:
+            encounter_menu()
 
 #Startup, Main Menu
 #Settings
-options_list = main_menu()
+options_list = None
+main_menu()
 os.system("cls")
 print(f"Welcome To Lootbag RPG!")
 print(f"____________________________")
@@ -439,7 +568,7 @@ game_state = {
 #Game loop
 while True:
     
-    options = ["Inventory", "Lootbag", "Inspect", "Character", "Shop", "Heal"]
+    options = ["Inventory", "Lootbag", "Inspect", "Character", "Shop", "Heal", "Menu"]
     auto_option = ["Attack"]
     action_input = option_menu(options=options, auto_option=auto_option)
     os.system("cls")
@@ -470,11 +599,8 @@ while True:
         #Heal character
         heal_menu()
     elif action_input == 6:
-        #Load menu
-        hero, Enemy.active_enemy, options_list = load_menu()
-    elif action_input == 7:
-        #Save menu
-        save_menu()
+        #Game menu (settings, save, load)
+        game_menu()
     elif action_input == "":
         #Attack
         attack_menu()
