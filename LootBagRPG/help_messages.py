@@ -19,6 +19,7 @@ def help_general() -> None:
     print("Type 'save' to save the game")
     print("Type 'load [filename]' to load a saved game")
     print("Type 'help [action]' at any time to show datailed help")
+    input("Press Enter to Go Back")
 
 def help_move() -> None:
     #Help messages for the "move" command
@@ -32,6 +33,7 @@ def help_move() -> None:
     print(f"The first item which matches the name given will be moved from the chosen place to the other.")
     print(f"Example: 'move wooden stick' <ENTER> 'inventory' <ENTER> ")
     print(f"The item will be moved from your lootbag to your inventory, if there is space.")
+    input("Press Enter to Go Back")
 
 def help_shop() -> None:
     #Help messages for the "shop" menu
@@ -44,6 +46,7 @@ def help_shop() -> None:
     print(f"Items bought in the shop are moved into your inventory")
     print(f"Items sold to the shop must come from your inventory")
     print(f"Example: 's b' <ENTER> 'mana potion' <ENTER> will purchase a mana potion and add it to your inventory.")
+    input("Press Enter to Go Back")
 
 def help_drop() -> None:
     #Help messages for the "drop" command
@@ -52,6 +55,7 @@ def help_drop() -> None:
     print(f"Typing 'drop' or 'd' followed by the item's name will prompt a request for the location of the item.")
     print(f"Once provided (inventory or lootbag), the first instance of the item found will be permanently removed.")
     print(f"Example: 'drop wooden stick' <ENTER> 'lootbag' <ENTER> will drop a wooden stick from your lootbag")
+    input("Press Enter to Go Back")
 
 def help_attack() -> None:
     #Help messages for the "attack" command
@@ -66,6 +70,7 @@ def help_attack() -> None:
     print(f"%Hit chance = (attackrating + lootbaghitrating)/2 - enemydefense")
     print(f"Example: If your attack rating is 80 and your lootbag hit rating is 60, your hit chance will be 70%")
     print(f"    If the enemy defense is 10, the actual hit chance is 60%")
+    input("Press Enter to Go Back")
 
 def help_save_load() -> None:
     #Help messages for the "save/load" commands
@@ -73,6 +78,7 @@ def help_save_load() -> None:
     print(f"_________________________")
     print(f"Typing 'save' will save a [name].JSON file containing the current game state, named after your username.")
     print(f"Typing 'load filename.json' will load the corresponding save file.")
+    input("Press Enter to Go Back")
 
 def help_inventory() -> None:
     #Help messages for the "inventory" command
@@ -84,6 +90,7 @@ def help_inventory() -> None:
     print(f"Items may only be used from the inventory")
     print(f"Weapons in the inventory do not contribute to your attack power")
     print(f"Weapons may be moved between the inventory and lootbag using the 'move' command")
+    input("Press Enter to Go Back")
 
 def help_lootbag() -> None:
     #Help messages for the "lootbag" command
@@ -93,6 +100,7 @@ def help_lootbag() -> None:
     print(f"All weapons in the lootbag add their damage together")
     print(f"All weapons in the lootbag average their hit rating together")
     print(f"Only weapons can be stored in the lootbag")
+    input("Press Enter to Go Back")
 
 def help_stats() -> None:
     #Help messages for the "stats" command
@@ -106,6 +114,7 @@ def help_stats() -> None:
     print(f"Your current gold,")
     print(f"And a summary of your lootbag, its damage, hit rating, and capacity.")
     print(f"%Hit chance = (attackrating + lootbaghitrating)/2 - enemydefense")
+    input("Press Enter to Go Back")
 
 def help_inspect() -> None:
     #Help messages for the "inspect" command
@@ -113,6 +122,7 @@ def help_inspect() -> None:
     print(f"_________________________")
     print(f"Type 'inspect enemy' to inspect the current enemy, and see their stats")
     print(f"Type 'inspect [item]' to inspect an item in your inventory or lootbag, and see its stats")
+    input("Press Enter to Go Back")
 
 def help_use() -> None:
     #Help messages for the "use" command
@@ -121,6 +131,7 @@ def help_use() -> None:
     print(f"Type 'use [item]' to use an item from your inventory")
     print(f"Currently, only potions can be used.")
     print(f"The mana potion, for example, replenishes 5 mana")
+    input("Press Enter to Go Back")
 
 def help_heal() -> None:
     #Help messages for the "heal" command
@@ -128,3 +139,4 @@ def help_heal() -> None:
     print(f"_________________________")
     print(f"Type 'h' or 'heal' to heal your character.")
     print(f"Healing costs 1 mana and replenishes 10 hp.")
+    input("Press Enter to Go Back")

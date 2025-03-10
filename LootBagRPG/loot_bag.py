@@ -70,17 +70,30 @@ class LootBag:
             print(f"{weapon_to_add.rarity} {weapon_to_add.name} added to lootbag.")
 
     def remove_item(self, weapon_name) -> bool:
-        weapon_to_remove = Weapon.get_weapon_by_name(weapon_name)
-
-        if weapon_to_remove is None:
+        all_weapon_names = []
+        bag_weapon_names = []
+        for weapon in Weapon.all_weapons_list:
+            all_weapon_names.append(weapon.name)
+        for weapon in self.items:
+            bag_weapon_names.append(weapon.name)
+        
+        if weapon_name not in all_weapon_names:
             print(f"Invalid Weapon: '{weapon_name}' does not exist.")
             return False
         
-        elif weapon_to_remove not in self.items:
+        elif weapon_name not in bag_weapon_names:
+            print(weapon_name)
             print(f"Weapon '{weapon_name}' is not in your bag.")
+            for item in self.items:
+                print(item)
             return False
         
         else:
+            weapon_to_remove = Weapon.get_weapon_by_name(weapon_name)
+            weapon_to_remove = next(
+            (weapon for weapon in self.items 
+             if weapon.name.lower() == weapon_to_remove.name.lower()),
+            None)
             self.items.remove(weapon_to_remove)
             self.update_bag()
             print(f"{weapon_to_remove.rarity} {weapon_to_remove.name} removed from lootbag.")

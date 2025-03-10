@@ -43,7 +43,7 @@ def main_settings_menu() -> None:
     elif menu_option in ["3"]:
         main_menu()
     elif menu_option in [""]:
-        return
+        main_menu()
 
 def main_menu() -> None:
     global options_list
@@ -53,15 +53,18 @@ def main_menu() -> None:
     print(f"Welcome To Lootbag RPG!")
     print(f"____________________________")
     print(f"Main Menu")
-    print(f"[1] Play")
-    print(f"[2] Settings")
-    print(f"[3] Exit")
-    menu_option = input("Please Select An Option... ")
-    if menu_option in ["1"]:
+    options = ["Play", "Load Saved Game", "Settings", "Quit"]
+    auto_option = ["Play"]
+    action_input = option_menu(options, auto_option)
+    if action_input == "":
         return
-    elif menu_option in ["2"]:
+    if action_input == 0:
+        return
+    elif action_input == 1:
+        load_menu()
+    elif action_input == 2:
         main_settings_menu()
-    elif menu_option in ["3"]:
+    elif action_input == 3:
         exit()
 
 def option_menu(options: list, auto_option: str = None) -> str:
@@ -88,6 +91,7 @@ def option_menu(options: list, auto_option: str = None) -> str:
 
 def inventory_menu() -> None:
     game_state["menu"] = "inventory"
+    os.system("cls")
     hero.inventory.draw(hero)
     #Provide options for:
     #Move
@@ -116,6 +120,7 @@ def inventory_menu() -> None:
 
 def lootbag_menu() -> None:
     game_state["menu"] = "lootbag"
+    os.system("cls")
     hero.loot_bag.draw_bag()
     #Provide options for:
     #Move
@@ -146,6 +151,7 @@ def inspect_menu() -> None:
     #Item in Inventory
     #Item in Lootbag
     #exit(attack)
+    os.system("cls")
     options = ["Enemy", "Item in Inventory", "Item in Lootbag"]
     auto_option = ["Attack"]
     action_input = option_menu(options, auto_option)
@@ -181,6 +187,7 @@ def character_menu() -> None:
     #Heal
     #Use
     #exit(attack)
+    os.system("cls")
     game_state["menu"] = "character"
     hero.health_bar.draw()
     hero.mana_bar.draw()
@@ -206,6 +213,7 @@ def shop_menu() -> None:
     #Sell
     #Move
     #exit(attack)
+    os.system("cls")
     game_state["menu"] = "shop"
     shop.generate_shop()
     shop.draw()
@@ -251,63 +259,79 @@ def move_menu() -> None:
     #From Inventory -> Lootbag
     #From Lootbag -> Inventory
     #exit(attack)
+    os.system("cls")
     options = ["Inventory -> Lootbag", "Lootbag -> Inventory"]
     auto_option = ["Attack"]
     action_input = option_menu(options, auto_option)
-
+    os.system("cls")
     if action_input == 0:
         #move from inventory to lootbag
         options = hero.inventory.get_items()
-        auto_option = ["Go Back"]
-        action_input = option_menu(options, auto_option)
-        if action_input == "":
-            return
-        item_to_move = options[action_input]
-        if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
-            hero.loot_bag.add_item(item_to_move)
-        elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
-            print(f"{item_to_move} won't fit in your lootbag.")
+        if len(options) > 0:
+            auto_option = ["Go Back"]
+            action_input = option_menu(options, auto_option)
+            os.system("cls")
+            if action_input == "":
+                return
+            item_to_move = options[action_input]
+            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
+                hero.loot_bag.add_item(item_to_move)
+            elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
+                print(f"{item_to_move} won't fit in your lootbag.")
+        else:
+            print("Inventory Empty.")
 
     elif action_input == 1:
         #move from lootbag to inventory
         options = hero.loot_bag.get_items()
-        auto_option = ["Go Back"]
-        action_input = option_menu(options, auto_option)
-        if action_input == "":
-            return
-        item_to_move = options[action_input]
-        if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
-            hero.inventory.add_item(item_to_move)
-        elif hero.inventory.weight >= hero.inventory.weight_max:
-            print(f"{item_to_move} won't fit in your inventory.")
+        if len(options) > 0:
+            auto_option = ["Go Back"]
+            action_input = option_menu(options, auto_option)
+            os.system("cls")
+            if action_input == "":
+                return
+            item_to_move = options[action_input]
+            if (hero.inventory.weight < hero.inventory.weight_max) and hero.loot_bag.remove_item(item_to_move):
+                hero.inventory.add_item(item_to_move)
+            elif hero.inventory.weight >= hero.inventory.weight_max:
+                print(f"{item_to_move} won't fit in your inventory.")
+        else:
+            print("Lootbag Empty.")
     elif action_input == "":
         return
     
 def drop_menu() -> None:
-
+    os.system("cls")
     options = ["From Inventory", "From Lootbag"]
     auto_option = ["Attack"]
     action_input = option_menu(options, auto_option)
 
     if action_input == 0:
         options = hero.inventory.get_items()
-        auto_option = ["Go Back"]
-        action_input = option_menu(options, auto_option)
-        if action_input == "":
-            return
-        item_to_drop = options[action_input]
-        hero.inventory.remove_item(item_to_drop)
-        hero.inventory.draw()
+        if len(options) > 0:
+            auto_option = ["Go Back"]
+            action_input = option_menu(options, auto_option)
+            if action_input == "":
+                return
+            item_to_drop = options[action_input]
+            hero.inventory.remove_item(item_to_drop)
+            hero.inventory.draw()
+        else:
+            print("Inventory Empty.")
+
 
     elif action_input == 1:
         options = hero.loot_bag.get_items()
-        auto_option = ["Go Back"]
-        action_input = option_menu(options, auto_option)
-        if action_input == "":
-            return
-        item_to_drop = options[action_input]
-        hero.loot_bag.remove_item(item_to_drop)
-        hero.loot_bag.draw_bag()
+        if len(options) > 0:
+            auto_option = ["Go Back"]
+            action_input = option_menu(options, auto_option)
+            if action_input == "":
+                return
+            item_to_drop = options[action_input]
+            hero.loot_bag.remove_item(item_to_drop)
+            hero.loot_bag.draw_bag()
+        else:
+            print("Lootbag Empty.")
 
     elif action_input == "":
         return
@@ -315,6 +339,7 @@ def drop_menu() -> None:
 def use_menu() -> None:
     #Options
     #Inventory Items
+    os.system("cls")
     options = hero.inventory.get_items()
     auto_option = ["Go Back"]
     action_input = option_menu(options, auto_option)
@@ -324,17 +349,29 @@ def use_menu() -> None:
     hero.use(item_to_use)
     hero.inventory.draw(hero)
 
-def load_menu() -> list:
+def load_menu() -> None:
+    global hero
+    global options_list
+    os.system("cls")
+    print(f"Press <ENTER> To Go Back")
     filename = input("Save file name? ")
-    hero_save, enemy_save, game_state, shop_save = load_game(filename)
+    if filename == "":
+        return
+    #Show save files here as options (later)
+    else:
+        hero_save, enemy_save, game_state, shop_save = load_game(filename)
+    if hero_save == None:
+        return
+    #print(hero_save)
     hero = None
     Enemy.active_enemy = None
     hero = Hero.from_dict(hero_save)
-    enemy = Enemy.from_dict(enemy_save)
+    Enemy.active_enemy = Enemy.from_dict(enemy_save)
     #run function to change to correct game state, refactor all actions to take place in functions
     #load_game_state(game_state)
     options_list = game_state["options_list"]
-    return hero, enemy, options_list
+    
+    return
 
 def save_menu() -> None:
     hero_save = hero.to_dict()
@@ -346,8 +383,10 @@ def game_menu() -> None:
     #Settings
     #Save
     #Load
+    #Help
     #Quit
-    options = ["Settings", "Save", "Load", "Quit"]
+    os.system("cls")
+    options = ["Settings", "Save", "Load", "Help", "Quit"]
     auto_option = ["Go Back"]
     action_input = option_menu(options, auto_option)
     if action_input == "":
@@ -359,6 +398,8 @@ def game_menu() -> None:
     elif action_input == 2:
         load_menu()
     elif action_input == 3:
+        help_menu()
+    elif action_input == 4:
         print("Are you sure? Don't forget to save!")
         options = ["Yes, Quit", "Don't Quit"]
         auto_option = ["Go Back"]
@@ -412,9 +453,11 @@ def game_settings_menu() -> None:
         game_settings_menu()
 
 def help_menu() -> None:
+    os.system("cls")
     options = ["General", "Attack", "Saving/Loading", "Inventory", "Lootbag", "Stats", "Inspect", "Shop", "Use", "Heal", "Move", "Drop"]
     auto_option = ["Go Back"]
     action_input = option_menu(options=options, auto_option=auto_option)
+    os.system("cls")
 
     if action_input == 0:
         help_general()
@@ -530,35 +573,39 @@ def attack_menu() -> None:
 
 #Startup, Main Menu
 #Settings
+hero = None
 options_list = None
 main_menu()
 os.system("cls")
-print(f"Welcome To Lootbag RPG!")
-print(f"____________________________")
-username = input("Please enter your username: ")
-os.system("cls")
-print(f"Welcome To Lootbag RPG!")
-print(f"____________________________")
-print(f"The Game About Hitting Things With Your Lootbag.")
-print(f"This is a text-adventure, turn-based ARPG.")
-print(f"Type 'help' for help.")
-print(f"If you encounter issues or a crash, feel free to file an issue on the public github.")
-input("Press Enter To Begin...")
-os.system("cls")
-
-#define player and enemy objects
-loot_bag = LootBag()
-shop = Shop()
-hero = Hero(name=username, 
-            level=1, 
-            xp=0, 
-            health=100, 
-            mana=10, 
-            attack_rating=50, 
-            defense=10, 
-            loot_bag=loot_bag, 
-            inventory=Inventory())
-Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
+if hero == None:
+    print(f"Welcome To Lootbag RPG!")
+    print(f"____________________________")
+    username = input("Please enter your username: ")
+    os.system("cls")
+    print(f"Welcome To Lootbag RPG!")
+    print(f"____________________________")
+    print(f"The Game About Hitting Things With Your Lootbag.")
+    print(f"This is a text-adventure, turn-based ARPG.")
+    print(f"Type 'help' for help.")
+    print(f"If you encounter issues or a crash, feel free to file an issue on the public github.")
+    input("Press Enter To Begin...")
+    os.system("cls")
+    #define player and enemy objects
+    loot_bag = LootBag()
+    shop = Shop()
+    hero = Hero(name=username, 
+                level=1, 
+                xp=0, 
+                health=100, 
+                mana=10, 
+                attack_rating=50, 
+                defense=10, 
+                loot_bag=loot_bag, 
+                inventory=Inventory())
+    Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
+else:
+    print(f"Welcome Back To Lootbag RPG, {hero.name}!")
+    print(f"____________________________")
 
 game_state = {
     "options_list": options_list,
