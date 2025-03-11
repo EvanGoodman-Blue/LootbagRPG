@@ -59,14 +59,18 @@ class Inventory:
             item_names.append(item.name)
         return item_names
     
-    def draw(self, hero) -> None:
+    def draw(self, hero, shop_flag : bool = False) -> None:
         #print inventory weight/weight_max
         print(f"Inventory Weight: {self.weight}/{self.weight_max}")
 
         #print list of inventory items including name
         print(f"Inventory: ")
-        for item in self.items:
-            print(f"{item.name}")
+        if shop_flag:
+            for item in self.items:
+                print(f"{item.name}: {item.value} Gold")
+        else:
+            for item in self.items:
+                print(f"{item.name}")
 
         print(f"Gold: {hero.gold}")
 

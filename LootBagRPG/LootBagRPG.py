@@ -116,6 +116,7 @@ def inventory_menu() -> None:
     elif action_input == 5:
         use_menu()
     elif action_input == "":
+        os.system("cls")
         return
 
 def lootbag_menu() -> None:
@@ -143,6 +144,7 @@ def lootbag_menu() -> None:
     elif action_input == 4:
         character_menu()
     elif action_input == "":
+        os.system("cls")
         return
 
 def inspect_menu() -> None:
@@ -157,27 +159,35 @@ def inspect_menu() -> None:
     action_input = option_menu(options, auto_option)
 
     if action_input == 0:
+        os.system("cls")
         game_state["menu"] = "inspect_enemy"
         hero.inspect(Enemy.active_enemy)
     elif action_input == 1:
         #Inspect item in inventory, list all items
+        os.system("cls")
         options = hero.inventory.get_items()
         auto_option = ["Go Back"]
         action_input = option_menu(options, auto_option)
         if action_input == "":
+            os.system("cls")
             return
         item_to_inspect = options[action_input]
+        os.system("cls")
         hero.inspect(item_to_inspect)
     elif action_input == 2:
         #Inspect item in lootbag, list all items
+        os.system("cls")
         options = hero.loot_bag.get_items()
         auto_option = ["Go Back"]
         action_input = option_menu(options, auto_option)
         if action_input == "":
+            os.system("cls")
             return
         item_to_inspect = options[action_input]
+        os.system("cls")
         hero.inspect(item_to_inspect)
     elif action_input == "":
+        os.system("cls")
         return
 
 def character_menu() -> None:
@@ -204,7 +214,8 @@ def character_menu() -> None:
     elif action_input == 3:
         use_menu()
     elif action_input == "":
-        return
+        pass
+    os.system("cls")
     return
 
 def shop_menu() -> None:
@@ -215,6 +226,7 @@ def shop_menu() -> None:
     #exit(attack)
     os.system("cls")
     game_state["menu"] = "shop"
+    shop = Shop()
     shop.generate_shop()
     shop.draw()
     options = ["Buy", "Sell", "Move"]
@@ -222,6 +234,9 @@ def shop_menu() -> None:
     action_input = option_menu(options, auto_option)
     
     if action_input == 0:
+        os.system("cls")
+        shop.draw()
+        print(f"________________________________")
         hero.inventory.draw(hero)
         options = []
         for item_name, item_obj in shop.stock.items():
@@ -229,24 +244,30 @@ def shop_menu() -> None:
         auto_option = ["Go Back"]
         action_input = option_menu(options, auto_option)
         if action_input == "":
+            os.system("cls")
             return
         item_to_buy = options[action_input]
+        os.system("cls")
         shop.buy(hero, item_to_buy)
 
     elif action_input == 1:
-        hero.inventory.draw(hero)
+        os.system("cls")
+        hero.inventory.draw(hero, shop_flag=True)
         options = hero.inventory.get_items()
         auto_option = ["Go Back"]
         action_input = option_menu(options, auto_option)
         if action_input == "":
+            os.system("cls")
             return
         item_to_sell = options[action_input]
+        os.system("cls")
         shop.sell(hero, item_to_sell)
 
     elif action_input == 2:
         move_menu()
 
     elif action_input == "":
+        os.system("cls")
         return
 
 def heal_menu() -> None:
@@ -267,6 +288,7 @@ def move_menu() -> None:
     if action_input == 0:
         #move from inventory to lootbag
         options = hero.inventory.get_items()
+        hero.inventory.draw(hero)
         if len(options) > 0:
             auto_option = ["Go Back"]
             action_input = option_menu(options, auto_option)
@@ -274,15 +296,19 @@ def move_menu() -> None:
             if action_input == "":
                 return
             item_to_move = options[action_input]
-            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and hero.inventory.remove_item(item_to_move):
+            #BAD BAD BAD, FIX.
+            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and item_to_move not in ["Mana Potion"] and hero.inventory.remove_item(item_to_move) :
                 hero.loot_bag.add_item(item_to_move)
             elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
                 print(f"{item_to_move} won't fit in your lootbag.")
+            elif item_to_move in ["Mana Potion"]:
+                print(f"{item_to_move} is not a weapon. ")
         else:
             print("Inventory Empty.")
 
     elif action_input == 1:
         #move from lootbag to inventory
+        hero.loot_bag.draw_bag()
         options = hero.loot_bag.get_items()
         if len(options) > 0:
             auto_option = ["Go Back"]
@@ -307,44 +333,57 @@ def drop_menu() -> None:
     action_input = option_menu(options, auto_option)
 
     if action_input == 0:
+        os.system("cls")
+        hero.inventory.draw(hero)
         options = hero.inventory.get_items()
         if len(options) > 0:
             auto_option = ["Go Back"]
             action_input = option_menu(options, auto_option)
             if action_input == "":
+                os.system("cls")
                 return
             item_to_drop = options[action_input]
+            os.system("cls")
             hero.inventory.remove_item(item_to_drop)
-            hero.inventory.draw()
+            hero.inventory.draw(hero)
         else:
             print("Inventory Empty.")
 
 
     elif action_input == 1:
+        os.system("cls")
+        hero.loot_bag.draw_bag()
         options = hero.loot_bag.get_items()
         if len(options) > 0:
             auto_option = ["Go Back"]
             action_input = option_menu(options, auto_option)
             if action_input == "":
+                os.system("cls")
                 return
             item_to_drop = options[action_input]
+            os.system("cls")
             hero.loot_bag.remove_item(item_to_drop)
             hero.loot_bag.draw_bag()
         else:
+            os.system("cls")
             print("Lootbag Empty.")
 
     elif action_input == "":
+        os.system("cls")
         return
 
 def use_menu() -> None:
     #Options
     #Inventory Items
     os.system("cls")
+    hero.inventory.draw(hero)
     options = hero.inventory.get_items()
     auto_option = ["Go Back"]
     action_input = option_menu(options, auto_option)
     if action_input == "":
+        os.system("cls")
         return
+    os.system("cls")
     item_to_use = options[action_input]
     hero.use(item_to_use)
     hero.inventory.draw(hero)
@@ -374,6 +413,7 @@ def load_menu() -> None:
     return
 
 def save_menu() -> None:
+    os.system("cls")
     hero_save = hero.to_dict()
     enemy_save = Enemy.active_enemy.to_dict()
     save_game(hero=hero_save, enemy=enemy_save, game_state=game_state)
@@ -390,6 +430,7 @@ def game_menu() -> None:
     auto_option = ["Go Back"]
     action_input = option_menu(options, auto_option)
     if action_input == "":
+        os.system("cls")
         return
     elif action_input == 0:
         game_settings_menu()
@@ -405,10 +446,12 @@ def game_menu() -> None:
         auto_option = ["Go Back"]
         action_input = option_menu(options, auto_option)
         if action_input == "":
+            os.system("cls")
             return
         elif action_input == 0:
             exit()
         elif action_input == 1:
+            os.system("cls")
             return
         
 def game_settings_menu() -> None:
@@ -424,6 +467,7 @@ def game_settings_menu() -> None:
     auto_option = ["Go Back"]
     action_input = option_menu(options, auto_option)
     if action_input == "":
+        os.system("cls")
         return
     elif action_input == 0:
         os.system("cls")
@@ -505,6 +549,7 @@ def add_menu() -> None:
     #XP
     #Item
     #exit(attack)
+    os.system("cls")
     options = ["Gold", "XP", "Item"]
     auto_option = ["Go Back"]
     action_input = option_menu(options, auto_option)
