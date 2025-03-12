@@ -1,4 +1,5 @@
 import os
+import math
 os.system("")
 
 class HealthBar:
@@ -33,6 +34,8 @@ class HealthBar:
         self.color = self.colors.get(color, self.colors.get("default"))
 
     def update(self) -> None:
+        self.max_value = self.entity.health_max
+        self.length = max(min((self.max_value // 4), 30),10)
         self.current_value = self.entity.health
 
     def draw(self) -> None:

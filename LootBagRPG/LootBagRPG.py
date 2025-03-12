@@ -214,8 +214,7 @@ def character_menu() -> None:
     elif action_input == 3:
         use_menu()
     elif action_input == "":
-        pass
-    os.system("cls")
+        os.system("cls")
     return
 
 def shop_menu() -> None:
@@ -297,11 +296,11 @@ def move_menu() -> None:
                 return
             item_to_move = options[action_input]
             #BAD BAD BAD, FIX.
-            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and item_to_move not in ["Mana Potion"] and hero.inventory.remove_item(item_to_move) :
+            if (hero.loot_bag.weight < hero.loot_bag.weight_max) and item_to_move not in ["Mana Potion", "Fortification Potion"] and hero.inventory.remove_item(item_to_move) :
                 hero.loot_bag.add_item(item_to_move)
             elif hero.loot_bag.weight >= hero.loot_bag.weight_max:
                 print(f"{item_to_move} won't fit in your lootbag.")
-            elif item_to_move in ["Mana Potion"]:
+            elif item_to_move in ["Mana Potion", "Fortification Potion"]:
                 print(f"{item_to_move} is not a weapon. ")
         else:
             print("Inventory Empty.")
@@ -387,6 +386,21 @@ def use_menu() -> None:
     item_to_use = options[action_input]
     hero.use(item_to_use)
     hero.inventory.draw(hero)
+    options = ["Inventory", "Lootbag", "Heal", "Character"]
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+    if action_input == "":
+        os.system("cls")
+        return
+    if action_input == 0:
+        inventory_menu()
+    elif action_input == 1:
+        lootbag_menu()
+    elif action_input == 2:
+        heal_menu()
+    elif action_input == 3:
+        character_menu()
+
 
 def load_menu() -> None:
     global hero
@@ -562,9 +576,11 @@ def add_menu() -> None:
     elif action_input == 1:
         hero.gain_xp(drops=None,xp=50)
     elif action_input == 2:
-        options = ["Mana Potion", "Wooden Stick", "Iron Dagger"]
+        options = ["Mana Potion", "Wooden Stick", "Iron Dagger", "Fortification Potion"]
         action_input = option_menu(options, auto_option)
         item_to_add = options[action_input]
+        if action_input == "":
+            return
         if action_input == 0:
             hero.inventory.add_item(item_to_add)
         elif action_input == 1:
@@ -573,6 +589,8 @@ def add_menu() -> None:
         elif action_input == 2:
             weapon_to_add = Weapon.generate_weapon("Iron Dagger")
             hero.inventory.add_item(weapon_to_add.name)
+        elif action_input == 3:
+            hero.inventory.add_item(item_to_add)
         hero.inventory.draw(hero)
     add_menu()
     
@@ -647,7 +665,7 @@ if hero == None:
                 defense=10, 
                 loot_bag=loot_bag, 
                 inventory=Inventory())
-    Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin")
+    Enemy.active_enemy = Enemy.spawn_enemy(hero, enemy_name="Goblin Grunt")
 else:
     print(f"Welcome Back To Lootbag RPG, {hero.name}!")
     print(f"____________________________")

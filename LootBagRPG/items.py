@@ -51,9 +51,27 @@ class Weapon(Item):
             "affix_rarity": 5,
             "value": -2
         },
+        "Worn": {
+            "damage": -2,
+            "hit_rating": 0,
+            "affix_rarity": 5,
+            "value": -2
+        },
         "Sharp": {
             "damage": 1,
             "hit_rating": 5,
+            "affix_rarity": 10,
+            "value": +5
+        },
+        "Fine": {
+            "damage": 0,
+            "hit_rating": 10,
+            "affix_rarity": 10,
+            "value": +5
+        },
+        "Serrated": {
+            "damage": 3,
+            "hit_rating": 0,
             "affix_rarity": 10,
             "value": +5
         }
@@ -70,6 +88,21 @@ class Weapon(Item):
             "hit_rating": -10,
             "affix_rarity": 5,
             "value": -2
+        },
+        "of Decay": {
+            "damage": -1,
+            "affix_rarity": 5,
+            "value": -2
+        },
+        "of Balance": {
+            "hit_rating": 10,
+            "affix_rarity": 10,
+            "value": 5
+        },
+        "of Slaying": {
+            "hit_rating": 3,
+            "affix_rarity": 10,
+            "value": 5
         },
         "of Pain": {
             "damage": 1,
@@ -88,6 +121,15 @@ class Weapon(Item):
             "weight": 1
         },
         {
+            "name": "Wooden Club",
+            "weapon_type": "club",
+            "rarity": "Crude",
+            "damage": 4,
+            "hit_rating": 70,
+            "value": 10,
+            "weight": 1
+        },
+        {
             "name": "Iron Dagger",
             "weapon_type": "dagger",
             "rarity": "Common",
@@ -95,6 +137,15 @@ class Weapon(Item):
             "hit_rating": 50,
             "value": 10,
             "weight": 1
+        },
+        {
+            "name": "Iron Shortsword",
+            "weapon_type": "sword",
+            "rarity": "Common",
+            "damage": 8,
+            "hit_rating": 75,
+            "value": 15,
+            "weight": 2
         }
 
     ]
@@ -139,6 +190,11 @@ class Weapon(Item):
         for stat, value in affix.items():
             if hasattr(self, stat):
                 setattr(self, stat, getattr(self, stat) + value)
+        #Minimum damage and hit rating values, possibly set min values for value and weight as well
+        if self.damage < 1:
+            self.damage = 1
+        if self.hit_rating < 30:
+            self.hit_rating = 30
 
     def update_name(self):
         new_name = self.name
@@ -351,3 +407,10 @@ mana_potion = Potion(name="Mana Potion",
                      value=10,
                      weight=1,
                      description="Restores 5 Mana. Tastes Bitter.")
+
+Fortification_potion = Potion(name="Fortification Potion",
+                     potion_type="health",
+                     effect_value=10,
+                     value=25,
+                     weight=1,
+                     description="Permanently Increases Maximum Health by 5. Tastes Sweet.")

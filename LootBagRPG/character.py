@@ -189,7 +189,13 @@ class Hero(Character):
                         self.mana_bar.draw()
                         print(f"{self.name} Restored {item_to_use.effect_value} Mana!")
                         self.inventory.remove_item(item_to_use.name)
-
+                    elif item_to_use.potion_type == "health":
+                        self.health_max += item_to_use.effect_value
+                        self.health_bar.update()
+                        self.health_bar.draw()
+                        self.mana_bar.draw()
+                        print(f"{self.name} Increased their maximum health by {item_to_use.effect_value}!")
+                        self.inventory.remove_item(item_to_use.name)
                 else:
                     print("Invalid Item Type.")
             else:
@@ -301,19 +307,33 @@ class Enemy(Character):
 
     enemy_weapons_list = ["Wooden Stick", "Iron Dagger"]
     all_enemies_list = [
-        {"name": "Goblin", 
+        {"name": "Goblin Grunt", 
          "health": 50,
          "mana": 1,
          "attack_rating": 50,
          "defense": 10,
          "weapon": "Wooden Stick"},
 
-         {"name": "Bandit", 
+         {"name": "Goblin Thug", 
+         "health": 80,
+         "mana": 1,
+         "attack_rating": 50,
+         "defense": 15,
+         "weapon": "Wooden Stick"},
+
+         {"name": "Bandit Rookie", 
          "health": 75,
          "mana": 2,
          "attack_rating": 66,
          "defense": 20,
-         "weapon": "Iron Dagger"}
+         "weapon": "Iron Dagger"},
+
+         {"name": "Bandit Scout", 
+         "health": 100,
+         "mana": 3,
+         "attack_rating": 70,
+         "defense": 25,
+         "weapon": "Iron Dagger"},
     ]
 
     def __init__(self, 
