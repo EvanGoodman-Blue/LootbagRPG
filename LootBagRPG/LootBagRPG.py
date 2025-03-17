@@ -4,10 +4,23 @@ from character import Hero, Enemy
 from loot_bag import LootBag
 from inventory import Inventory
 import os
+import time
+import msvcrt
 from items import Item, Weapon, Potion
 from shop import Shop
 from saveload import *
 from help_messages import *
+
+def pause_without_buffering(duration_ms):
+    end_time = time.time() + duration_ms / 1000
+    while time.time() < end_time:
+        while msvcrt.kbhit():
+            _ = msvcrt.getch()
+            time.sleep(.001)
+        time.sleep(.001)
+
+    while msvcrt.kbhit():
+        _ = msvcrt.getch()
 
 def main_settings_menu() -> None:
     global options_list
@@ -75,6 +88,8 @@ def option_menu(options: list, auto_option: str = None) -> str:
     if auto_option:
         print(f"...or press <ENTER> to {auto_option}")
     print(f"___________________________")
+    #Pause to prevent danger when holding keys
+    pause_without_buffering(200)
     action_input = input("Please Select An Option... ").strip().lower()
     if action_input == "" and auto_option:
         return action_input
@@ -202,7 +217,10 @@ def character_menu() -> None:
     hero.health_bar.draw()
     hero.mana_bar.draw()
     hero.draw_stats()
-    options = ["Inventory", "Lootbag", "Heal", "Use"]
+    if hero.stat_points > 0:
+        options = ["Inventory", "Lootbag", "Heal", "Use", "Assign Stat Points"]
+    else:
+        options = ["Inventory", "Lootbag", "Heal", "Use"]
     auto_option = ["Attack"]
     action_input = option_menu(options, auto_option)
     if action_input == 0:
@@ -213,8 +231,29 @@ def character_menu() -> None:
         heal_menu()
     elif action_input == 3:
         use_menu()
+    elif action_input == 4 and hero.stat_points > 0:
+        level_up_menu(hero)
     elif action_input == "":
         os.system("cls")
+    return
+
+def level_up_menu(hero) -> None:
+    os.system("cls")
+    print(f"Which Stat Would You Like To Increase?")
+    options = ["Health", "Defense", "Attack Rating", "Lootbag Capacity"]
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+    if action_input == "":
+        os.system("cls")
+        return
+    elif action_input == 0:
+        hero.apply_stats("health")
+    elif action_input == 1:
+        hero.apply_stats("defense")
+    elif action_input == 2:
+        hero.apply_stats("attack_rating")
+    elif action_input == 3:
+        hero.apply_stats("lootbag_weight")
     return
 
 def shop_menu() -> None:
@@ -270,6 +309,7 @@ def shop_menu() -> None:
         return
 
 def heal_menu() -> None:
+    os.system("cls")
     hero.heal(10)
     hero.health_bar.draw()
     hero.mana_bar.draw()
@@ -678,7 +718,13 @@ game_state = {
 #Game loop
 while True:
     
-    options = ["Inventory", "Lootbag", "Inspect", "Character", "Shop", "Heal", "Menu"]
+    
+
+    #Modify options menu to include [!] action reminders
+    if hero.stat_points > 0:
+        options = ["Inventory", "Lootbag", "Inspect", "Character [!]", "Shop", "Heal", "Menu"]
+    else:
+        options = ["Inventory", "Lootbag", "Inspect", "Character", "Shop", "Heal", "Menu"]
     auto_option = ["Attack"]
     action_input = option_menu(options=options, auto_option=auto_option)
     os.system("cls")
@@ -716,6 +762,8 @@ while True:
         attack_menu()
     elif action_input == -1:
         add_menu()
+
+    
         
 #Shop Save debug
 """

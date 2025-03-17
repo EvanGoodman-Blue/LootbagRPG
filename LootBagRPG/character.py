@@ -3,6 +3,7 @@ from loot_bag import LootBag
 from inventory import Inventory
 from health_bar import HealthBar, ManaBar
 from random import randint, choice, uniform
+import os
 #from shop import Shop
 
 class Character:   
@@ -88,7 +89,8 @@ class Hero(Character):
                  defense: int,
                  loot_bag: object,
                  inventory: object,
-                 gold: int=0
+                 gold: int=0,
+                 stat_points: int=0
                  ) -> None:
         super().__init__(name=name, health=health, mana=mana, attack_rating=attack_rating, defense=defense)
 
@@ -100,11 +102,35 @@ class Hero(Character):
         self.weapon = self.loot_bag
         self.health_bar = HealthBar(self, color= "red")
         self.mana_bar = ManaBar(self, color= "blue")
+        self.stat_points = stat_points
 
     def level_up(self) -> None:
         self.level += 1
+        self.stat_points += 5
         #implement level bonuses (max health, defense, attack rating, lootbag weight)
         print(f"{self.name} Advanced to Level {self.level}!")
+        print(f"Open the Character Screen to Assign Stat Points.")
+
+    def apply_stats(self, stat:str) -> None:
+        #stat- stat to increase (max health, defense, attack rating, lootbag weight)
+        os.system("cls")
+        if stat in ["health"]:
+            self.health_max += 5
+            self.health += 5
+            self.health_bar.update()
+            print(f"{self.name}'s Max Health increased by 5!")
+            self.health_bar.draw()
+            self.mana_bar.draw()
+        elif stat in ["defense"]:
+            self.defense += 5
+            print(f"{self.name}'s Defense increased by 5!")
+        elif stat in ["attack_rating"]:
+            self.attack_rating += 5
+            print(f"{self.name}'s Attack Rating increased by 5!")
+        elif stat in ["lootbag_weight"]:
+            self.loot_bag.weight_max += 5
+            print(f"{self.name}'s Lootbag Capacity increased by 5!")
+        self.stat_points -= 5
 
     def gain_xp(self, drops:list=None, xp:int=None) -> None:
         if drops is None and xp is not None:
@@ -305,7 +331,7 @@ class Hero(Character):
 class Enemy(Character):
     active_enemy = None
 
-    enemy_weapons_list = ["Wooden Stick", "Iron Dagger"]
+    enemy_weapons_list = ["Wooden Stick", "Iron Dagger", "Wooden Club", "Iron Shortsword"]
     all_enemies_list = [
         {"name": "Goblin Grunt", 
          "health": 50,
@@ -319,7 +345,7 @@ class Enemy(Character):
          "mana": 1,
          "attack_rating": 50,
          "defense": 15,
-         "weapon": "Wooden Stick"},
+         "weapon": "Wooden Club"},
 
          {"name": "Bandit Rookie", 
          "health": 75,
@@ -333,7 +359,7 @@ class Enemy(Character):
          "mana": 3,
          "attack_rating": 70,
          "defense": 25,
-         "weapon": "Iron Dagger"},
+         "weapon": "Iron Shortsword"},
     ]
 
     def __init__(self, 

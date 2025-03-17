@@ -100,7 +100,7 @@ class Weapon(Item):
             "value": 5
         },
         "of Slaying": {
-            "hit_rating": 3,
+            "damage": 3,
             "affix_rarity": 10,
             "value": 5
         },
