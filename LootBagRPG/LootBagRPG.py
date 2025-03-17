@@ -717,8 +717,6 @@ game_state = {
 
 #Game loop
 while True:
-    
-    
 
     #Modify options menu to include [!] action reminders
     if hero.stat_points > 0:

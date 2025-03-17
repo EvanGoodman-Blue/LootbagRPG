@@ -1,9 +1,16 @@
 import json
 import os
+import sys
 
-SAVE_FILE = "savegame.json"
-SAVE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saves")
-os.makedirs(SAVE_DIR, exist_ok=True)
+def get_base_dir():
+    #Returns correct save directory regardless if running in .py or .exe
+    if getattr(sys, 'frozen', False): #if running as .exe
+        return os.path.dirname(sys.executable) #temp pyinstaller directory
+    return os.path.dirname(os.path.abspath(__file__)) #if running as .py script
+
+BASE_DIR = get_base_dir()
+SAVE_DIR = os.path.join(BASE_DIR, "saves")
+os.makedirs(SAVE_DIR, exist_ok=True) #make save directory if it didnt exist
 
 
 def get_save_path(filename):
