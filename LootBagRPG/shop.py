@@ -21,12 +21,16 @@ class Shop:
         matching_item = next((item for item in self.stock if item.lower() == item_name.lower()), None)
         if matching_item:
             price = self.stock[matching_item].value
+            #Check if can afford, or inventory full, dont waste gold
             if hero.gold >= price:
-                hero.gold -= price
-                print(f"{matching_item} Purchased for {price} Gold.")
-                #Check if inventory full, dont waste gold
-                hero.inventory.add_item(matching_item)
-                print(f"Thanks for stopping by, {hero.name}!")
+                if hero.inventory.weight < hero.inventory.weight_max:
+                    hero.gold -= price
+                    print(f"{matching_item} Purchased for {price} Gold.")
+                    hero.inventory.add_item(matching_item)
+                    print(f"Thanks for stopping by, {hero.name}!")
+                else:
+                    print(f"I Can't Carry Anymore. Current Weight: {hero.inventory.weight}/{hero.inventory.weight_max}")
+                    print(f"Thanks for stopping by, {hero.name}!")
             else:
                 print(f"Not enough Gold. Current Gold: {hero.gold}")
                 print(f"Thanks for stopping by, {hero.name}!")

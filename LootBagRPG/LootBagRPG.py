@@ -445,20 +445,46 @@ def load_menu() -> None:
     global hero
     global options_list
     os.system("cls")
-    print(f"Press <ENTER> To Go Back")
-    filename = input("Save file name? ")
-    if filename == "":
+
+    save_files = list_saves()
+
+    if not save_files:
+        print("No saves found.")
+        input("Press Enter to Return")
         return
-    #Show save files here as options (later)
-    else:
-        hero_save, enemy_save, game_state, shop_save = load_game(filename)
-    if hero_save == None:
+    
+    gold_column_width = max(4, max(len(str(get_save_preview(path)["gold"])) for path in save_files) + 1)
+    
+    print(f"{'    Name':<14} | {'Level':<8} | {'Gold':<{gold_column_width}} | {'Modified':<20}")
+
+    options = []
+    for path in save_files:
+        info = get_save_preview(path)
+        time_raw = info["modified"].strftime("%a %m/%d %I:%M %p") if isinstance(info["modified"], datetime) else "N/A"
+        modified_str = time_raw.replace(" 0", " ")
+
+        display_str = (
+            f"{info['name']:<10} | "
+            f"Level {str(info['level']):<2} | "
+            f"{str(info['gold']) + "g":<{gold_column_width}} | "
+            f"{modified_str}")
+        
+        options.append(display_str)
+    auto_option = ["Go Back"]
+    action_input = option_menu(options, auto_option)
+    
+    if action_input == "":
+        os.system("cls")
         return
-    """
-    for key, value in hero_save.items():
-        print(f"{key}: {value}")
-        print()
-    """
+    
+    selected_path = save_files[action_input]
+    filename = selected_path.name
+
+    hero_save, enemy_save, game_state, shop_save = load_game(filename)
+    if hero_save is None:
+        input("Failed to load save, press Enter to return...")
+        return
+
     hero = None
     Enemy.active_enemy = None
     hero = Hero.from_dict(hero_save)
@@ -466,6 +492,11 @@ def load_menu() -> None:
     #run function to change to correct game state, refactor all actions to take place in functions
     #load_game_state(game_state)
     options_list = game_state["options_list"]
+
+    os.system("cls")
+
+    print(f"Game loaded: {hero.name} (Level {hero.level}, {hero.gold}g)")
+    input("Press Enter to continue...")
     
     return
 
