@@ -293,7 +293,8 @@ class Hero(Character):
             if item["item_type"] == "Weapon":
                 item_to_add = Weapon.from_dict(item)
                 data["loot_bag"][i] = item_to_add
-                Item.all_items_list.append(item_to_add)
+                if item_to_add not in Item.all_items_list:
+                    Item.all_items_list.append(item_to_add)
 
             elif item["item_type"] == "Potion":
                 item_to_add = Potion.get_potion_by_name(item["name"])
@@ -303,7 +304,8 @@ class Hero(Character):
             if item["item_type"] == "Weapon":
                 item_to_add = Weapon.from_dict(item)
                 data["inventory"][i] = item_to_add
-                Item.all_items_list.append(item)
+                if item_to_add not in Item.all_items_list:
+                    Item.all_items_list.append(item_to_add)
 
             elif item["item_type"] == "Potion":
                 item_to_add = Potion.get_potion_by_name(item["name"])

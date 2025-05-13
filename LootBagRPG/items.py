@@ -15,11 +15,18 @@ class Item:
         self.weight = weight
         # ADD DESCRIPTIONS HERE FOR ALL ITEMS, REFACTOR POTION DESCRIPTIONS
 
-        Item.all_items_list.append(self)
+        if self not in Item.all_items_list:
+            Item.all_items_list.append(self)
 
     @classmethod
     def get_item_by_name(cls, name: str) -> object:
         #Finds and returns item object by name (case insensitive)
+        """
+        for item in cls.all_items_list:
+            print(type(item))
+            print(item)
+            print()
+        """
         return next(
             (item for item in cls.all_items_list 
              if item.name.lower() == name.lower()),
@@ -184,7 +191,8 @@ class Weapon(Item):
 
         self.update_name()
 
-        Weapon.all_weapons_list.append(self)
+        if self not in Weapon.all_weapons_list:
+            Weapon.all_weapons_list.append(self)
 
     def apply_affix(self, affix: dict):
         for stat, value in affix.items():
@@ -317,7 +325,8 @@ class Potion(Item):
         self.effect_value = effect_value
         self.description = description
 
-        Potion.all_potions_list.append(self)
+        if self not in Potion.all_potions_list:
+            Potion.all_potions_list.append(self)
 
     @classmethod
     def get_potion_by_name(cls, name: str) -> object:

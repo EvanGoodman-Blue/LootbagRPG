@@ -441,7 +441,6 @@ def use_menu() -> None:
     elif action_input == 3:
         character_menu()
 
-
 def load_menu() -> None:
     global hero
     global options_list
@@ -455,7 +454,11 @@ def load_menu() -> None:
         hero_save, enemy_save, game_state, shop_save = load_game(filename)
     if hero_save == None:
         return
-    #print(hero_save)
+    """
+    for key, value in hero_save.items():
+        print(f"{key}: {value}")
+        print()
+    """
     hero = None
     Enemy.active_enemy = None
     hero = Hero.from_dict(hero_save)
@@ -634,7 +637,6 @@ def add_menu() -> None:
         hero.inventory.draw(hero)
     add_menu()
     
-
 def encounter_menu() -> None:
     #if autoencounter off, present options here
     global options_list
@@ -800,7 +802,7 @@ elif action in ["debug"]:
             print("YES")
 """
 
-#Input parsing
+#Deprecated Input parsing
 """
     if action_input == "":
         action = ""
