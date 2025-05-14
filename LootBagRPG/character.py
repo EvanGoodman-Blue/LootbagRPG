@@ -1,22 +1,26 @@
 from items import Item, Weapon, Potion
 from loot_bag import LootBag
 from inventory import Inventory
-from health_bar import HealthBar, ManaBar
+from health_bar import HealthBar, ManaBar, XPBar
 from random import randint, choice, uniform
 import os
 #from shop import Shop
 
 class Character:   
-    def __init__(self, name: str, health: int, mana: int, attack_rating: int, defense: int) -> None:
+    def __init__(self, name: str, health: int, mana: int, attack_rating: int, defense: int, level: int = None, xp: int = None) -> None:
         self.name = name
+        self.level = level
         self._health = health
         self.health_max = health
         self._mana = mana
         self.mana_max = mana
+        self._xp = xp
         self.attack_rating = attack_rating
         self.defense = defense
         self.health_bar = HealthBar(self)
         self.mana_bar = ManaBar(self)
+        if xp is not None:
+            self.xp_bar = XPBar(self)
 
         #self.weapon = Weapon.get_weapon_by_name("Fists")
 
@@ -37,6 +41,15 @@ class Character:
     def mana(self, value: int):
         self._mana = value
         self.mana_bar.update()
+
+    @property
+    def xp(self):
+        return self._xp
+    
+    @xp.setter
+    def xp(self, value: int):
+        self._xp = value
+        self.xp_bar.update()
 
     def attack(self, target) -> list:
         #hit rating check
@@ -92,16 +105,15 @@ class Hero(Character):
                  gold: int=0,
                  stat_points: int=0
                  ) -> None:
-        super().__init__(name=name, health=health, mana=mana, attack_rating=attack_rating, defense=defense)
+        super().__init__(name=name, level=level, health=health, mana=mana, xp=xp, attack_rating=attack_rating, defense=defense)
 
-        self.level = level
-        self.xp = xp
         self.gold = gold
         self.loot_bag = loot_bag
         self.inventory = inventory
         self.weapon = self.loot_bag
         self.health_bar = HealthBar(self, color= "red")
         self.mana_bar = ManaBar(self, color= "blue")
+        self.xp_bar = XPBar(self)
         self.stat_points = stat_points
 
     def level_up(self) -> None:
@@ -132,10 +144,9 @@ class Hero(Character):
             print(f"{self.name}'s Lootbag Capacity increased by 5!")
         self.stat_points -= 5
 
-    def gain_xp(self, drops:list=None, xp:int=None) -> None:
-        if drops is None and xp is not None:
-            xp_gained = xp
-            self.xp += xp
+    def gain_xp(self, drops:list=None, xp_gained:int=None) -> None:
+        if drops is None and xp_gained is not None:
+            self.xp += xp_gained
         else:
             xp_gained = drops[0]
             self.xp += drops[0]
@@ -187,11 +198,6 @@ class Hero(Character):
                 print(f"Weight: {target.weight}")
 
     def draw_stats(self) -> None:
-        print(f"{self.name}'s Stats")
-        print(f"Level: {self.level}")
-        print(f"XP: {self.xp}/{self.level * 100}")
-        print(f"Max Health: {self.health_max}")
-        print(f"Max Mana: {self.mana_max}")
         print(f"Attack Rating: {self.attack_rating}")
         print(f"Defense: {self.defense}")
         print(f"Gold: {self.gold}")

@@ -10,6 +10,33 @@ from items import Item, Weapon, Potion
 from shop import Shop
 from saveload import *
 from help_messages import *
+import re
+
+UI_WIDTH = 50
+
+def strip_ansi(text: str) -> str:
+    ansi_escape = re.compile(r'\x1B[@-_][0-?]*[ -/]*[@-~]')
+    return ansi_escape.sub('', text)
+
+def format_stat_line(label: str, bar_str: str, value_str: str) -> str:
+    """
+    Returns a formatted line with ANSI-safe padding.
+    """
+    full_text = f"   {label} {bar_str} {value_str}"
+    visible_length = len(strip_ansi(full_text))
+    padding = UI_WIDTH - visible_length
+    return full_text + ' ' * max(padding, 0)
+
+def draw_boxed_ui(lines: list[str], title: str = None):
+    """
+    Draws a box with an optional centered title and aligned lines.
+    """
+    print("╔" + "═" * UI_WIDTH + "╗")
+    if title:
+        print(f"║ {title:^{UI_WIDTH - 2}} ║")
+    for line in lines:
+        print(f"║{line}║")
+    print("╚" + "═" * UI_WIDTH + "╝")
 
 def pause_without_buffering(duration_ms):
     end_time = time.time() + duration_ms / 1000
@@ -63,7 +90,15 @@ def main_menu() -> None:
     if options_list is None:
         options_list = [True, True]
     os.system("cls")
-    print(f"Welcome To Lootbag RPG!")
+    #print(f"Welcome To Lootbag RPG!")
+    print("""
+     _                _   _                   ____  ____   ____ 
+    | |    ___   ___ | |_| |__   __ _  __ _  |  _ \|  _ \ / ___|
+    | |   / _ \ / _ \| __| '_ \ / _` |/ _` | | |_) | |_) | |  _ 
+    | |__| (_) | (_) | |_| |_) | (_| | (_| | |  _ <|  __/| |_| |
+    |_____\___/ \___/ \__|_.__/ \__,_|\__, | |_| \_\_|    \____|
+                                      |___/                     
+    """)
     print(f"____________________________")
     print(f"Main Menu")
     options = ["Play", "Load Saved Game", "Settings", "Quit"]
@@ -214,9 +249,28 @@ def character_menu() -> None:
     #exit(attack)
     os.system("cls")
     game_state["menu"] = "character"
-    hero.health_bar.draw()
-    hero.mana_bar.draw()
-    hero.draw_stats()
+    health_bar_str = hero.health_bar.draw()
+    mana_bar_str = hero.mana_bar.draw()
+    xp_bar_str = hero.xp_bar.draw()
+    print("╔" + "═" * 50 + "╗")
+    print(f"║" + " " * 50 + "║")
+    print(f"║ {"{}'s Stats".format(hero.name):^48} ║")
+    print(f"║ {"Level - {}".format(hero.level):^48} ║")
+    print(f"║" + " " * 50 + "║")
+    print("╠" + "═" * 50 + "╣")
+    print(f"║" + " " * 50 + "║")
+    print(f"║   Health: {health_bar_str} {hero.health}/{hero.health_max:<8}║") 
+    print(f"║   Mana:   {mana_bar_str} {hero.mana}/{hero.mana_max:<9}║")
+    print(f"║" + " " * 50 + "║")
+    print(f"║   XP:     {xp_bar_str} {hero.xp}/{(hero.level * 100):<7}║")
+    print(f"║" + " " * 50 + "║")
+    print("╠" + "═" * 50 + "╣")
+    print(f"║   Attack Rating: {hero.attack_rating}   Defense: {hero.defense}   Gold: {hero.gold:<7}║")
+    print("╠" + "═" * 50 + "╣")
+    print(f"║{"{}'s Lootbag".format(hero.name):^50}║")
+    print(f"║" + " " * 50 + "║")
+    print(f"║   Damage: {hero.weapon.damage}   Hit Rating: {hero.weapon.hit_rating}   Capacity: {hero.loot_bag.weight}/{hero.loot_bag.weight_max:<5}║")
+    print("╚" + "═" * 50 + "╝")
     if hero.stat_points > 0:
         options = ["Inventory", "Lootbag", "Heal", "Use", "Assign Stat Points"]
     else:
@@ -529,6 +583,7 @@ def game_menu() -> None:
     elif action_input == 3:
         help_menu()
     elif action_input == 4:
+        os.system("cls")
         print("Are you sure? Don't forget to save!")
         options = ["Yes, Quit", "Don't Quit"]
         auto_option = ["Go Back"]
@@ -699,10 +754,58 @@ def attack_menu() -> None:
         if Enemy.active_enemy is not None and Enemy.active_enemy.health > 0 :
             Enemy.active_enemy.attack(hero)
 
-        hero.health_bar.draw()
-        hero.mana_bar.draw()
         if Enemy.active_enemy is not None:
-            Enemy.active_enemy.health_bar.draw()
+
+            line = format_stat_line("Health:", Enemy.active_enemy.health_bar.draw(), f"{Enemy.active_enemy.health}/{Enemy.active_enemy.health_max}")
+            draw_boxed_ui([line], title=Enemy.active_enemy.name)
+
+            """
+            enemy_health_label = "Health: "
+            enemy_health_bar_str = Enemy.active_enemy.health_bar.draw()
+            enemy_health_value = f"{Enemy.active_enemy.health}/{Enemy.active_enemy.health_max}"
+
+            enemy_line_text = strip_ansi(f"   {enemy_health_label} {enemy_health_bar_str} {enemy_health_value}")
+
+            print("╔" + "═" * 50 + "╗")
+            print(f"║ {"{}".format(Enemy.active_enemy.name):^48} ║")
+            print(f"║{enemy_line_text:<50}║")
+            print("╚" + "═" * 50 + "╝")
+            """
+
+        health_line = format_stat_line("Health:", hero.health_bar.draw(), f"{hero.health}/{hero.health_max}")
+        mana_line = format_stat_line("Mana:  ", hero.mana_bar.draw(), f"{hero.mana}/{hero.mana_max}")
+        xp_line = format_stat_line("XP:    ", hero.xp_bar.draw(), f"{hero.xp}/{hero.level * 100}")
+
+        draw_boxed_ui([health_line, mana_line, " " * UI_WIDTH, xp_line])
+        """
+        hero_health_label = "Health: "
+        hero_health_bar_str = hero.health_bar.draw()
+        hero_health_value = f"{hero.health}/{hero.health_max}"
+
+        hero_health_line_text = strip_ansi(f"   {hero_health_label} {hero_health_bar_str} {hero_health_value}")
+
+        hero_mana_label = "Mana:   "
+        hero_mana_bar_str = hero.mana_bar.draw()
+        hero_mana_value = f"{hero.mana}/{hero.mana_max}"
+
+        hero_mana_line_text = strip_ansi(f"   {hero_mana_label} {hero_mana_bar_str} {hero_mana_value}")
+
+        hero_xp_label = "XP:     "
+        hero_xp_bar_str = hero.xp_bar.draw()
+        hero_xp_value = f"{hero.xp}/{hero.level * 100}"
+
+        hero_xp_line_text = strip_ansi(f"   {hero_xp_label} {hero_xp_bar_str} {hero_xp_value}")
+
+        
+        print("╔" + "═" * 50 + "╗")
+        print(f"║{hero_health_line_text:<50}║") 
+        print(f"║{hero_mana_line_text:<50}║")
+        print(f"║" + " " * 50 + "║")
+        print(f"║{hero_xp_line_text:<50}║")
+        print("╚" + "═" * 50 + "╝")
+        """
+
+        
 
         if Enemy.active_enemy is None:
             encounter_menu()
